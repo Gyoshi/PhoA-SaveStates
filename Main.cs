@@ -2,7 +2,6 @@
 using System.Reflection;
 using UnityEngine;
 using UnityModManagerNet;
-using static UnityModManagerNet.UnityModManager;
 
 namespace SaveStates
 {
@@ -11,15 +10,16 @@ namespace SaveStates
     #endif
     static class Main
     {
-        //[SaveOnReload]
-        //public static string name;
+        [SaveOnReload]
+        public static string savedRoom;
 
-        private static Harmony harmony;
+        public static Harmony harmony;
 
         // Compiled without dependencies on UnityModManagerNet
         static void Load(UnityModManager.ModEntry modEntry)
         {
-            modEntry.OnUpdate = OnUpdate;
+            //modEntry.OnUpdate = OnUpdate;
+            modEntry.OnLateUpdate = OnUpdate;
             #if DEBUG
             modEntry.OnUnload = Unload;
             #endif
@@ -37,18 +37,18 @@ namespace SaveStates
 
         private static void OnUpdate(UnityModManager.ModEntry modEntry, float dt)
         {
-            
+            //GaleInteracter galeInteracter = (GaleInteracter)typeof(PT2).GetField("gale_interacter", BindingFlags.Static).GetValue(null);
             if (Input.GetKeyDown(KeyCode.Keypad0))
             {
-
                 modEntry.Logger.Log("num0");
-                PT2.gale_interacter.DisplayNumAboveHead(0, DamageNumberLogic.DISPLAY_STYLE.NUM_POPUP_N_FALL_GRAY);
+                savedRoom = typeof(PT2).GetField("_room_to_load", BindingFlags.NonPublic | BindingFlags.Static).GetValue(null).ToString();
+                modEntry.Logger.Log("Saved room : " + savedRoom);
+                //galeInteracter.DisplayNumAboveHead(0, DamageNumberLogic.DISPLAY_STYLE.GALE_DAMAGE, false);
             }
-            if (PT2.director.control.CROUCH_PRESSED)
+            if (PT2.director.control.GRAB_HELD && PT2.director.control.CAM_PRESSED)
             {
                 modEntry.Logger.Log(":)");
-                PT2.LoadLevel("test_fps", 0, Vector3.zero, false, 0.1f, false, true);
-                PT2.gale_interacter.DisplayNumAboveHead(0, DamageNumberLogic.DISPLAY_STYLE.GALE_DAMAGE);
+                PT2.LoadLevel(savedRoom, 0, Vector3.zero, false, 0.1f, false, true);
             }
         }
     }
