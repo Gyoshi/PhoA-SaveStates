@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net3.5</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="0Harmony">
+      <HintPath>..\..\Program Files (x86)\Steam\steamapps\common\Phoenotopia Awakening\PhoenotopiaAwakening_Data\Managed\UnityModManager\0Harmony.dll</HintPath>
+    </Reference>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>..\..\Program Files (x86)\Steam\steamapps\common\Phoenotopia Awakening\PhoenotopiaAwakening_Data\Managed\Assembly-CSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="Assembly-CSharp-firstpass">
+      <HintPath>..\..\Program Files (x86)\Steam\steamapps\common\Phoenotopia Awakening\PhoenotopiaAwakening_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>..\..\Program Files (x86)\Steam\steamapps\common\Phoenotopia Awakening\PhoenotopiaAwakening_Data\Managed\UnityEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>..\..\Program Files (x86)\Steam\steamapps\common\Phoenotopia Awakening\PhoenotopiaAwakening_Data\Managed\UnityEngine.UI.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityModManager">
+      <HintPath>..\..\Program Files (x86)\Steam\steamapps\common\Phoenotopia Awakening\PhoenotopiaAwakening_Data\Managed\UnityModManager\UnityModManager.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="call xcopy &quot;$(SolutionDir)\bin\Debug\net3.5\SaveStates.dll&quot; &quot;C:\Program Files (x86)\Steam\steamapps\common\Phoenotopia Awakening\Mods\SaveStates&quot; /Y" />
+  </Target>
+
+</Project>
