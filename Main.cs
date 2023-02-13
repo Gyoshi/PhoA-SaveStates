@@ -15,10 +15,11 @@ namespace SaveStates
     static class Main
     {
         [SaveOnReload] public static string room;
+        [SaveOnReload] public static int doorId;
         [SaveOnReload] public static Vector3 position;
         [SaveOnReload] public static Vector3 encounterPosition;
         [SaveOnReload] public static int camera;
-        [SaveOnReload] public static GALE_MODE loadMode;
+        [SaveOnReload] public static bool mapMode;
 
         public static Harmony harmony;
 
@@ -54,14 +55,8 @@ namespace SaveStates
 
                 // Save room
                 room = Traverse.Create(typeof(PT2)).Field("_room_to_load").GetValue() as string;
+                doorId = LevelBuildLogic.door_end_id;
                 modEntry.Logger.Log("Saved room : " + room);
-
-                //object[] args = { 1, DamageNumberLogic.DISPLAY_STYLE.GALE_DAMAGE, false };
-                //MethodInfo displayNumber = typeof(GaleInteracter).GetMethod("DisplayNumAboveHead");
-                //modEntry.Logger.Log(displayNumber.Name);
-                //object interacterInstance = typeof(PT2).GetField("gale_interacter").GetValue(null);
-                //modEntry.Logger.Log("Attempting Invocation");
-                //displayNumber.Invoke(interacterInstance, args);
 
                 // Save position
                 position = PT2.gale_interacter.GetGaleTransform().position;
@@ -76,16 +71,23 @@ namespace SaveStates
                 //galeState = Traverse.Create(typeof(GaleLogicOne)).Field("StateFn").GetValue<Action>(PT2.gale_script);
                 // Save more general mode
                 FieldInfo field = typeof(GaleLogicOne).GetField("_gale_state_on_level_load", BindingFlags.NonPublic | BindingFlags.Instance);
-                loadMode = (GALE_MODE)field.GetValue(PT2.gale_script);
-                modEntry.Logger.Log("Saved load mode : " + loadMode);
+                mapMode = (GALE_MODE)field.GetValue(PT2.gale_script) == GALE_MODE.MAP_MODE;
+                modEntry.Logger.Log("Saved map mode : " + mapMode);
 
             }
             if (PT2.director.control.GRAB_HELD && PT2.director.control.CAM_PRESSED)
             {
 
-                PT2.LoadLevel(room, 0, Vector3.zero, false, 0.1f, false, true);
+                PT2.LoadLevel(room, doorId, Vector3.zero, false, 0.1f, false, true);
                 PT2.gale_script.SendGaleCommand(GALE_CMD.RESET);
-                PT2.gale_script.SetGaleModeOnLevelLoad(loadMode);
+                if (mapMode)
+                {
+                    PT2.gale_script.SetGaleModeOnLevelLoad(GALE_MODE.MAP_MODE);
+                }
+                else
+                {
+                    PT2.gale_script.SetGaleModeOnLevelLoad(GALE_MODE.DEFAULT);
+                }
                 PT2.gale_script.SendGaleCommand(GALE_CMD.SET_GALE_MODE);
 
                 PT2.gale_interacter.GetGaleTransform().position = position;
