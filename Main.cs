@@ -50,57 +50,64 @@ namespace SaveStates
 
             if (Input.GetKeyDown(KeyCode.Keypad0))
             {
-                modEntry.Logger.Log("num0");
-                PT2.gale_interacter.DisplayNumAboveHead(10, DamageNumberLogic.DISPLAY_STYLE.HOVER_AND_FLASH_RED, true);
-
-                // Save room
-                room = Traverse.Create(typeof(PT2)).Field("_room_to_load").GetValue() as string;
-                doorId = LevelBuildLogic.door_end_id;
-                modEntry.Logger.Log("Saved room : " + room);
-
-                // Save position
-                position = PT2.gale_interacter.GetGaleTransform().position;
-                encounterPosition = new Vector3(WorldMapFoeLogic.X_WHERE_BATTLE_OCCURRED, WorldMapFoeLogic.Y_WHERE_BATTLE_OCCURRED, 0f);
-                //checkpoint = { PT2.gale_interacter._checkpoint_location, ...}
-                modEntry.Logger.Log("Saved position : " + position);
-
-                // Save camera
-                camera = PT2.camera_control._curr_camera_config;
-
-                // Saving Gail's exact state (rolling, dying, climbing, etc.) is probly not worth the effort
-                //galeState = Traverse.Create(typeof(GaleLogicOne)).Field("StateFn").GetValue<Action>(PT2.gale_script);
-                // Save more general mode
-                FieldInfo field = typeof(GaleLogicOne).GetField("_gale_state_on_level_load", BindingFlags.NonPublic | BindingFlags.Instance);
-                mapMode = (GALE_MODE)field.GetValue(PT2.gale_script) == GALE_MODE.MAP_MODE;
-                modEntry.Logger.Log("Saved map mode : " + mapMode);
+                QuickSave(modEntry);
 
             }
             if (PT2.director.control.GRAB_HELD && PT2.director.control.CAM_PRESSED)
             {
-
-                PT2.LoadLevel(room, doorId, Vector3.zero, false, 0.1f, false, true);
-                PT2.gale_script.SendGaleCommand(GALE_CMD.RESET);
-                if (mapMode)
-                {
-                    PT2.gale_script.SetGaleModeOnLevelLoad(GALE_MODE.MAP_MODE);
-                }
-                else
-                {
-                    PT2.gale_script.SetGaleModeOnLevelLoad(GALE_MODE.DEFAULT);
-                }
-                PT2.gale_script.SendGaleCommand(GALE_CMD.SET_GALE_MODE);
-
-                PT2.gale_interacter.GetGaleTransform().position = position;
-                WorldMapFoeLogic.X_WHERE_BATTLE_OCCURRED = encounterPosition.x;
-                WorldMapFoeLogic.Y_WHERE_BATTLE_OCCURRED = encounterPosition.y;
-
-                PT2.camera_control.SwitchCameraConfig(camera, 0, true);
-                OpeningMenuLogic.EnableGameplayElements();
-
-                PT2.gale_interacter.DisplayNumAboveHead(10, DamageNumberLogic.DISPLAY_STYLE.HOVER_AND_FLASH_GREEN, true);
-                //TODO: add nice sound effects
-                modEntry.Logger.Log("ロード済み");
+                QuickLoad(modEntry);
             }
+        }
+        private static void QuickSave(UnityModManager.ModEntry modEntry)
+        {
+            modEntry.Logger.Log("num0");
+            PT2.gale_interacter.DisplayNumAboveHead(10, DamageNumberLogic.DISPLAY_STYLE.HOVER_AND_FLASH_RED, true);
+
+            // Save room
+            room = Traverse.Create(typeof(PT2)).Field("_room_to_load").GetValue() as string;
+            doorId = LevelBuildLogic.door_end_id;
+            modEntry.Logger.Log("Saved room : " + room);
+
+            // Save position
+            position = PT2.gale_interacter.GetGaleTransform().position;
+            encounterPosition = new Vector3(WorldMapFoeLogic.X_WHERE_BATTLE_OCCURRED, WorldMapFoeLogic.Y_WHERE_BATTLE_OCCURRED, 0f);
+            //checkpoint = { PT2.gale_interacter._checkpoint_location, ...}
+            modEntry.Logger.Log("Saved position : " + position);
+
+            // Save camera
+            camera = PT2.camera_control._curr_camera_config;
+
+            // Saving Gail's exact state (rolling, dying, climbing, etc.) is probly not worth the effort
+            //galeState = Traverse.Create(typeof(GaleLogicOne)).Field("StateFn").GetValue<Action>(PT2.gale_script);
+            // Save more general mode
+            FieldInfo field = typeof(GaleLogicOne).GetField("_gale_state_on_level_load", BindingFlags.NonPublic | BindingFlags.Instance);
+            mapMode = (GALE_MODE)field.GetValue(PT2.gale_script) == GALE_MODE.MAP_MODE;
+            modEntry.Logger.Log("Saved map mode : " + mapMode);
+        }
+        private static void QuickLoad(UnityModManager.ModEntry modEntry)
+        {
+            PT2.LoadLevel(room, doorId, Vector3.zero, false, 0.1f, false, true);
+            if (mapMode)
+            {
+                PT2.gale_script.SetGaleModeOnLevelLoad(GALE_MODE.MAP_MODE);
+            }
+            else
+            {
+                PT2.gale_script.SetGaleModeOnLevelLoad(GALE_MODE.DEFAULT);
+            }
+            PT2.gale_script.SendGaleCommand(GALE_CMD.SET_GALE_MODE);
+            PT2.gale_script.SendGaleCommand(GALE_CMD.RESET); //idk what this does but it removes at least 1 weird bug so
+
+            PT2.gale_interacter.GetGaleTransform().position = position;
+            WorldMapFoeLogic.X_WHERE_BATTLE_OCCURRED = encounterPosition.x;
+            WorldMapFoeLogic.Y_WHERE_BATTLE_OCCURRED = encounterPosition.y;
+
+            PT2.camera_control.SwitchCameraConfig(camera, 0, true);
+            OpeningMenuLogic.EnableGameplayElements();
+
+            PT2.gale_interacter.DisplayNumAboveHead(10, DamageNumberLogic.DISPLAY_STYLE.HOVER_AND_FLASH_GREEN, true);
+            //TODO: add nice sound effects
+            modEntry.Logger.Log("ロード済み");
         }
     }
     //[HarmonyPatch(typeof(GaleLogicOne), "Update")]
