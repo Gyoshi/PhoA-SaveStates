@@ -1,8 +1,12 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net3.5</TargetFramework>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Test.cs" />
+  </ItemGroup>
 
   <ItemGroup>
     <Reference Include="0Harmony">
