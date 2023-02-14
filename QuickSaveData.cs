@@ -9,39 +9,16 @@ using UnityModManagerNet;
 namespace SaveStates
 {
     [Serializable]
-    public sealed class QuickSaveData
+    public static class QuickSaveData
     {
-        private static readonly QuickSaveData instance = new QuickSaveData();
-        private SerializableDictionary<string, object> dictionary = new SerializableDictionary<string, object>();
+        public static string room = "";
+        public static int doorId = 0;
+        public static Vector3 position = Vector3.zero;
+        public static Vector3 encounterPosition = Vector3.zero;
+        public static int camera = -1;
+        public static bool mapMode = false;
 
-        private QuickSaveData()
-        {
-            // Private constructor to prevent external instantiation
-        }
-
-        public static QuickSaveData Instance
-        {
-            get
-            {
-                return instance;
-            }
-        }
-
-        public void Add(string key, object value)
-        {
-            dictionary.dictionary[key] = value;
-        }
-
-        public object Get(string key)
-        {
-            if (dictionary.dictionary.ContainsKey(key))
-            {
-                return dictionary.dictionary[key];
-            }
-            return null;
-        }
-
-        public void SaveToXml(string filename)
+        public static void SaveToXml(string filename)
         {
             XmlSerializer serializer = new XmlSerializer(typeof(SerializableDictionary<string, object>));
             using (FileStream stream = File.Create(filename))
@@ -50,7 +27,7 @@ namespace SaveStates
             }
         }
 
-        public void LoadFromXml(string filename)
+        public static void LoadFromXml(string filename)
         {
             XmlSerializer serializer = new XmlSerializer(typeof(SerializableDictionary<string, object>));
 
