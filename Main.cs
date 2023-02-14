@@ -87,11 +87,15 @@ namespace SaveStates
 
             // Save stats
             data.galeStats = PT2.gale_interacter.stats;
+            if (PT2.gale_script is GaleLogicOne galeLogicOne)
+            {
+                data.staminaStun = galeLogicOne.stamina_stun;
+            }
 
             #if DEBUG
             logger.Log("Saved room : " + data.room);
             logger.Log("Saved position : " + data.position);
-            logger.Log("Saved stats: hp-" + data.galeStats.hp + " stamina-"+data.galeStats.stamina);
+            logger.Log("Saved stats: hp_" + data.galeStats.hp + " stamina_" + data.galeStats.stamina + " stun_" + data.staminaStun);
             #endif
         }
 
@@ -102,6 +106,7 @@ namespace SaveStates
             PT2.director.CloseAllDialoguers();
             PT2.gale_interacter.NoInteractionsCurrently();
 
+            // Load SaveFile data
             PT2.save_file._NS_ProcessSaveDataString(data.saveFileString); // also calls LoadLevel :/
 
             // Load room
@@ -129,8 +134,13 @@ namespace SaveStates
             PT2.hud_heart.J_UpdateHealth(data.galeStats.hp, data.galeStats.max_hp, false, false);
             PT2.hud_stamina.J_InitializeStaminaHud(data.galeStats.max_stamina); //superfluous after savefile data?
             PT2.hud_stamina.J_SetCurrentStamina(data.galeStats.stamina);
+            if (PT2.gale_script is GaleLogicOne galeLogicOne)
+            {
+                galeLogicOne.stamina_stun = data.staminaStun;
+            }
 
-            #if DEBUG
+#if DEBUG
+            //logger.Log("Loaded stamina stun: " + (float)Traverse.Create(typeof(GaleLogicOne)).Field("stamina_stun").GetValue(PT2.gale_script));
             logger.Log("ロード済み");
 
             Main.logger.Log("ロード済み");

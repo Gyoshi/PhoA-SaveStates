@@ -7,6 +7,8 @@ namespace SaveStates
     [Serializable]
     public class QuickSaveData
     {
+        public string saveFileString = null;
+
         public string room = null;
         public int doorId = 0;
         public Vector3 position = Vector3.zero;
@@ -16,7 +18,6 @@ namespace SaveStates
 
         [NonSerialized]
         public GaleStats galeStats = new GaleStats();
-
         public int hp;
         public int max_hp;
         public float stamina;
@@ -24,7 +25,7 @@ namespace SaveStates
         public float stamina_buff;
         public float attack_buff;
 
-        public string saveFileString = null;
+        public float staminaStun = 0f;
 
         public void SaveToJson(string filename)
         {
