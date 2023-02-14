@@ -26,6 +26,7 @@ namespace SaveStates
         public float _attack_buff;
 
         public float staminaStun = 0f;
+        public bool grounded = false;
 
         public void SaveToJson(string filename)
         {

@@ -87,9 +87,12 @@ namespace SaveStates
 
             // Save stats
             data.galeStats = PT2.gale_interacter.stats;
+
+            // Save Gale Logic
             if (PT2.gale_script is GaleLogicOne galeLogicOne)
             {
                 data.staminaStun = galeLogicOne.stamina_stun;
+                data.grounded = galeLogicOne._mover2.collision_info.below;
             }
 
             #if DEBUG
