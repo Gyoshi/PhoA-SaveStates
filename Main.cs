@@ -49,21 +49,22 @@ namespace SaveStates
         {
             //display save slot
             //PT2.gale_interacter.DisplayNumAboveHead(10, DamageNumberLogic.DISPLAY_STYLE.BLINK_IN_PLACE2, true);
-            if (PT2.director.control.GRAB_HELD && PT2.director.control.CAM_PRESSED)
+            
+            if (PT2.director.control.RIGHT_STICK_CLICK && PT2.director.control.IsControlStickDeadZone(0.4f, false))
             {
                 //Save
-                PT2.gale_interacter.DisplayNumAboveHead(10, DamageNumberLogic.DISPLAY_STYLE.HOVER_AND_FLASH_RED, false);
+                PT2.gale_interacter.DisplayNumAboveHead(1, DamageNumberLogic.DISPLAY_STYLE.HOVER_AND_FLASH_RED, false);
 
                 QuickSave();
 
                 data.SaveToJson(dataPath);
             }
-            if (!PT2.director.control.GRAB_HELD && PT2.director.control.CAM_PRESSED)
+            if (PT2.director.control.CAM_PRESSED)
             {
                 //Load
                 QuickLoad();
 
-                PT2.gale_interacter.DisplayNumAboveHead(10, DamageNumberLogic.DISPLAY_STYLE.HOVER_AND_FLASH_GREEN, true);
+                PT2.gale_interacter.DisplayNumAboveHead(1, DamageNumberLogic.DISPLAY_STYLE.HOVER_AND_FLASH_GREEN, true);
             }
         }
         private static void QuickSave()
