@@ -48,19 +48,19 @@ namespace SaveStates
         static void OnUpdate(UnityModManager.ModEntry modEntry, float dt)
         {
 
-            if (Input.GetKeyDown(KeyCode.Keypad0))
+            if (PT2.director.control.GRAB_HELD && PT2.director.control.CAM_PRESSED)
             {
+                modEntry.Logger.Log("num0");
                 QuickSave(modEntry);
 
             }
-            if (PT2.director.control.GRAB_HELD && PT2.director.control.CAM_PRESSED)
+            if (!PT2.director.control.GRAB_HELD && PT2.director.control.CAM_PRESSED)
             {
                 QuickLoad(modEntry);
             }
         }
         private static void QuickSave(UnityModManager.ModEntry modEntry)
         {
-            modEntry.Logger.Log("num0");
             PT2.gale_interacter.DisplayNumAboveHead(10, DamageNumberLogic.DISPLAY_STYLE.HOVER_AND_FLASH_RED, true);
 
             // Save room
@@ -84,8 +84,14 @@ namespace SaveStates
             mapMode = (GALE_MODE)field.GetValue(PT2.gale_script) == GALE_MODE.MAP_MODE;
             modEntry.Logger.Log("Saved map mode : " + mapMode);
         }
+
         private static void QuickLoad(UnityModManager.ModEntry modEntry)
         {
+            // Clear stuff like PT2.Initialize()
+            PT2.sound_g.ForceStopOcarina();
+            PT2.director.CloseAllDialoguers();
+            PT2.gale_interacter.NoInteractionsCurrently();
+
             PT2.LoadLevel(room, doorId, Vector3.zero, false, 0.1f, false, true);
             if (mapMode)
             {
