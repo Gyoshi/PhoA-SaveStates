@@ -94,12 +94,6 @@ namespace SaveStates
                 data.staminaStun = galeLogicOne.stamina_stun;
                 data.grounded = galeLogicOne._mover2.collision_info.below;
             }
-
-            #if DEBUG
-            logger.Log("Saved room : " + data.room);
-            logger.Log("Saved position : " + data.position);
-            logger.Log("Saved stats: hp_" + data.galeStats.hp + " stamina_" + data.galeStats.stamina + " stun_" + data.staminaStun);
-            #endif
         }
 
         private static void QuickLoad()
@@ -143,10 +137,7 @@ namespace SaveStates
             }
 
 #if DEBUG
-            //logger.Log("Loaded stamina stun: " + (float)Traverse.Create(typeof(GaleLogicOne)).Field("stamina_stun").GetValue(PT2.gale_script));
             logger.Log("ロード済み");
-
-            Main.logger.Log("ロード済み");
             #endif
         }
     }
