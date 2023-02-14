@@ -15,7 +15,7 @@ namespace SaveStates
         public bool mapMode = false;
 
         [NonSerialized]
-        public GaleStats galeStats;
+        public GaleStats galeStats = new GaleStats();
 
         public int hp;
         public int max_hp;
