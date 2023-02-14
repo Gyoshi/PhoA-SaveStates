@@ -131,12 +131,15 @@ namespace SaveStates
             PT2.hud_heart.J_UpdateHealth(data.galeStats.hp, data.galeStats.max_hp, false, false);
             PT2.hud_stamina.J_InitializeStaminaHud(data.galeStats.max_stamina); //superfluous after savefile data?
             PT2.hud_stamina.J_SetCurrentStamina(data.galeStats.stamina);
+
+            // Load Gale Logic
             if (PT2.gale_script is GaleLogicOne galeLogicOne)
             {
                 galeLogicOne.stamina_stun = data.staminaStun;
+                galeLogicOne._mover2.collision_info.below = data.grounded;
             }
 
-#if DEBUG
+            #if DEBUG
             logger.Log("ロード済み");
             #endif
         }
