@@ -17,7 +17,6 @@ namespace SaveStates
         [NonSerialized]
         public GaleStats galeStats;
 
-        public float lift_power;
         public int hp;
         public int max_hp;
         public float stamina;
@@ -53,7 +52,6 @@ namespace SaveStates
         }
         public void UpdateStats()
         {
-            this.galeStats.lift_power = lift_power;
             this.galeStats.hp = hp;
             this.galeStats.max_hp = max_hp;
             this.galeStats.stamina = stamina;
@@ -63,7 +61,6 @@ namespace SaveStates
         }
         public void UpdateFields()
         {
-            this.lift_power = galeStats.lift_power;
             this.hp = galeStats.hp;
             this.max_hp = galeStats.max_hp;
             this.stamina = galeStats.stamina;
