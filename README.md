@@ -5,6 +5,7 @@ Save and load at the click of a button:
 - Press the right analog stick (while centered) to make a **quicksave**
     - Or the Home button on keyboard
 - Hold the grab button, then press the camera button to **quickload**
+    - Or the End button on keyboard
 
 Your quicksave data is stored as a file in the mod folder.
 
