@@ -15,6 +15,7 @@ namespace SaveStates
 #endif
     static class Main
     {        
+        public static QuickSaveData data;
         public static string dataPath;
 
         public static Harmony harmony;
@@ -24,11 +25,9 @@ namespace SaveStates
         static void Load(UnityModManager.ModEntry modEntry)
         {
             logger = modEntry.Logger;
+
             dataPath = Path.Combine(modEntry.Path, "savedata.xml");
-            if (File.Exists(dataPath))
-            {
-                QuickSaveData.LoadFromXml(dataPath);
-            }
+            data = QuickSaveData.LoadFromJson(dataPath);
 
             // TODO: figure this out (easy fix if camera disabled?)
             //modEntry.OnUpdate = OnUpdate;
