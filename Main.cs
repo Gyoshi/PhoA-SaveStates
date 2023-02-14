@@ -75,21 +75,21 @@ namespace SaveStates
             // Save room
             QuickSaveData.room = Traverse.Create(typeof(PT2)).Field("_room_to_load").GetValue() as string;
             QuickSaveData.doorId = LevelBuildLogic.door_end_id;
-            Main.logger.Log("Saved room : " + room);
+            Main.logger.Log("Saved room : " + QuickSaveData.room);
 
             // Save position
             QuickSaveData.position = PT2.gale_interacter.GetGaleTransform().position;
             QuickSaveData.encounterPosition = new Vector3(WorldMapFoeLogic.X_WHERE_BATTLE_OCCURRED, WorldMapFoeLogic.Y_WHERE_BATTLE_OCCURRED, 0f);
             QuickSaveData.camera = PT2.camera_control._curr_camera_config;
             //checkpoint = { PT2.gale_interacter._checkpoint_location, ...}
-            Main.logger.Log("Saved position : " + position);
+            Main.logger.Log("Saved position : " + QuickSaveData.position);
 
             // Saving Gail's exact state (rolling, dying, climbing, etc.) is probly not worth the effort
             //galeState = Traverse.Create(typeof(GaleLogicOne)).Field("StateFn").GetValue<Action>(PT2.gale_script);
             // Save more general mode
             FieldInfo field = typeof(GaleLogicOne).GetField("_gale_state_on_level_load", BindingFlags.NonPublic | BindingFlags.Instance);
             QuickSaveData.mapMode = (GALE_MODE)field.GetValue(PT2.gale_script) == GALE_MODE.MAP_MODE;
-            Main.logger.Log("Saved map mode : " + mapMode);
+            Main.logger.Log("Saved map mode : " + QuickSaveData.mapMode);
 
         }
 
