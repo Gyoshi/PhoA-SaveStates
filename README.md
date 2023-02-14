@@ -8,6 +8,8 @@ Save and load at the click of a button:
 
 Your quicksave data is stored as a file in the mod folder.
 
+*Multiple save slots, better controls, more detailed state preservation, and more is still under development.*
+
 ## State preservation
 Everything related to Gail and her progress through the story is preserved across quicksaves and -loads. The state of the npcs and objects in a room is not. More precisely:
 
@@ -23,8 +25,6 @@ Does not currently save
 - Projectiles, Bombs
 - Pause/Inv menu
 - Cutscene/dialogue progress
-
-*Multiple save slots, better controls, more detailed state preservation, and more is still under development.*
 
 ## Known Issues
 - Currently does not work from the title screen or main menu. First load into a save file before quickloading to avoid bugging the game out.
