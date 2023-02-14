@@ -18,12 +18,12 @@ namespace SaveStates
 
         [NonSerialized]
         public GaleStats galeStats = new GaleStats();
-        public int hp;
-        public int max_hp;
-        public float stamina;
-        public float max_stamina;
-        public float stamina_buff;
-        public float attack_buff;
+        public int _hp;
+        public int _max_hp;
+        public float _stamina;
+        public float _max_stamina;
+        public float _stamina_buff;
+        public float _attack_buff;
 
         public float staminaStun = 0f;
 
@@ -55,21 +55,21 @@ namespace SaveStates
         }
         public void UpdateStats()
         {
-            this.galeStats.hp = hp;
-            this.galeStats.max_hp = max_hp;
-            this.galeStats.stamina = stamina;
-            this.galeStats.max_stamina = max_stamina;
-            this.galeStats.stamina_buff = stamina_buff;
-            this.galeStats.attack_buff = attack_buff;
+            this.galeStats.hp = _hp;
+            this.galeStats.max_hp = _max_hp;
+            this.galeStats.stamina = _stamina;
+            this.galeStats.max_stamina = _max_stamina;
+            this.galeStats.stamina_buff = _stamina_buff;
+            this.galeStats.attack_buff = _attack_buff;
         }
         public void UpdateFields()
         {   
-            this.hp = galeStats.hp;
-            this.max_hp = galeStats.max_hp;
-            this.stamina = galeStats.stamina;
-            this.max_stamina = galeStats.max_stamina;
-            this.stamina_buff = galeStats.stamina_buff;
-            this.attack_buff = galeStats.attack_buff;
+            this._hp = galeStats.hp;
+            this._max_hp = galeStats.max_hp;
+            this._stamina = galeStats.stamina;
+            this._max_stamina = galeStats.max_stamina;
+            this._stamina_buff = galeStats.stamina_buff;
+            this._attack_buff = galeStats.attack_buff;
         }
     }
 }
