@@ -2,11 +2,8 @@
 using System;
 using System.IO;
 using System.Reflection;
-using System.Xml.Serialization;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityModManagerNet;
-using static UnityEngine.Random;
 
 namespace SaveStates
 {
@@ -83,12 +80,13 @@ namespace SaveStates
             //checkpoint = { PT2.gale_interacter._checkpoint_location, ...}
             Main.logger.Log("Saved position : " + data.position);
 
-            // Saving Gail's exact state (rolling, dying, climbing, etc.) is probly not worth the effort
-            //galeState = Traverse.Create(typeof(GaleLogicOne)).Field("StateFn").GetValue<Action>(PT2.gale_script);
             // Save more general mode
             FieldInfo field = typeof(GaleLogicOne).GetField("_gale_state_on_level_load", BindingFlags.NonPublic | BindingFlags.Instance);
             data.mapMode = (GALE_MODE)field.GetValue(PT2.gale_script) == GALE_MODE.MAP_MODE;
-            Main.logger.Log("Saved map mode : " + data.mapMode);
+
+            // Save stats
+            data.galeStats = PT2.gale_interacter.stats;
+            Main.logger.Log("Saved stats: hp-" + data.galeStats.hp + " stamina-"+data.galeStats.stamina);
 
         }
 
@@ -118,6 +116,9 @@ namespace SaveStates
             WorldMapFoeLogic.X_WHERE_BATTLE_OCCURRED = data.encounterPosition.x;
             WorldMapFoeLogic.Y_WHERE_BATTLE_OCCURRED = data.encounterPosition.y;
             OpeningMenuLogic.EnableGameplayElements();
+
+            //Load stats
+            PT2.gale_interacter.stats = data.galeStats;
 
             Main.logger.Log("ロード済み");
         }

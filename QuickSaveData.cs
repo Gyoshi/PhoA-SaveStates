@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Xml.Serialization;
 using UnityEngine;
-using UnityEngine.Experimental.Director;
-using UnityModManagerNet;
 
 namespace SaveStates
 {
@@ -19,8 +14,20 @@ namespace SaveStates
         public int camera = -1;
         public bool mapMode = false;
 
+        [NonSerialized]
+        public GaleStats galeStats;
+
+        public float lift_power;
+        public int hp;
+        public int max_hp;
+        public float stamina;
+        public float max_stamina;
+        public float stamina_buff;
+        public float attack_buff;
+
         public void SaveToJson(string filename)
         {
+            this.UpdateFields();
             string jsonString = JsonUtility.ToJson(this, true);
             File.WriteAllText(filename, jsonString);
         }
@@ -34,13 +41,35 @@ namespace SaveStates
             try
             {
                 string fileContents = File.ReadAllText(filename);
-                return JsonUtility.FromJson<QuickSaveData>(fileContents);
+                QuickSaveData data = JsonUtility.FromJson<QuickSaveData>(fileContents);
+                data.UpdateStats();
+                return data;
             }
             catch (Exception e)
             {
                 Main.logger.Log("Failed to read savedata with exception:\n" + e + "\nRemove the file \'savedata.xml\' from the mod folder if you wish to continue on a blank slate.");
                 throw;
             }
+        }
+        public void UpdateStats()
+        {
+            this.galeStats.lift_power = lift_power;
+            this.galeStats.hp = hp;
+            this.galeStats.max_hp = max_hp;
+            this.galeStats.stamina = stamina;
+            this.galeStats.max_stamina = max_stamina;
+            this.galeStats.stamina_buff = stamina_buff;
+            this.galeStats.attack_buff = attack_buff;
+        }
+        public void UpdateFields()
+        {
+            this.lift_power = galeStats.lift_power;
+            this.hp = galeStats.hp;
+            this.max_hp = galeStats.max_hp;
+            this.stamina = galeStats.stamina;
+            this.max_stamina = galeStats.max_stamina;
+            this.stamina_buff = galeStats.stamina_buff;
+            this.attack_buff = galeStats.attack_buff;
         }
     }
 }
