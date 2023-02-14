@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using System;
+using System.IO;
 using System.Reflection;
 using System.Xml.Serialization;
 using UnityEngine;
@@ -14,18 +15,27 @@ namespace SaveStates
 #endif
     static class Main
     {
-        [SaveOnReload] public static string room;
-        [SaveOnReload] public static int doorId;
+        public static QuickSaveData data = QuickSaveData.Instance;
+        public static string dataPath;
         [SaveOnReload] public static Vector3 position;
         [SaveOnReload] public static Vector3 encounterPosition;
         [SaveOnReload] public static int camera;
         [SaveOnReload] public static bool mapMode;
 
+
         public static Harmony harmony;
+        public static UnityModManager.ModEntry.ModLogger logger;
 
         // Compiled without dependencies on UnityModManagerNet
         static void Load(UnityModManager.ModEntry modEntry)
         {
+            logger = modEntry.Logger;
+            dataPath = Path.Combine(modEntry.Path, "savedata.xml");
+            if (File.Exists(dataPath))
+            {
+                data.LoadFromXml(dataPath);
+            }
+
             // TODO: figure this out (easy fix if camera disabled?)
             //modEntry.OnUpdate = OnUpdate;
             modEntry.OnLateUpdate = OnUpdate;
@@ -47,32 +57,37 @@ namespace SaveStates
 
         static void OnUpdate(UnityModManager.ModEntry modEntry, float dt)
         {
-
+            //display save slot
+            //PT2.gale_interacter.DisplayNumAboveHead(10, DamageNumberLogic.DISPLAY_STYLE.BLINK_IN_PLACE2, true);
             if (PT2.director.control.GRAB_HELD && PT2.director.control.CAM_PRESSED)
             {
-                modEntry.Logger.Log("num0");
-                QuickSave(modEntry);
+                //Save
+                PT2.gale_interacter.DisplayNumAboveHead(10, DamageNumberLogic.DISPLAY_STYLE.HOVER_AND_FLASH_RED, false);
 
+                QuickSave();
+
+                data.SaveToXml(dataPath);
             }
             if (!PT2.director.control.GRAB_HELD && PT2.director.control.CAM_PRESSED)
             {
-                QuickLoad(modEntry);
+                //Load
+                QuickLoad();
+
+                PT2.gale_interacter.DisplayNumAboveHead(10, DamageNumberLogic.DISPLAY_STYLE.HOVER_AND_FLASH_GREEN, true);
             }
         }
-        private static void QuickSave(UnityModManager.ModEntry modEntry)
+        private static void QuickSave()
         {
-            PT2.gale_interacter.DisplayNumAboveHead(10, DamageNumberLogic.DISPLAY_STYLE.HOVER_AND_FLASH_RED, true);
-
             // Save room
-            room = Traverse.Create(typeof(PT2)).Field("_room_to_load").GetValue() as string;
-            doorId = LevelBuildLogic.door_end_id;
-            modEntry.Logger.Log("Saved room : " + room);
+            string room = Traverse.Create(typeof(PT2)).Field("_room_to_load").GetValue() as string;
+            int doorId = LevelBuildLogic.door_end_id;
+            Main.logger.Log("Saved room : " + room);
 
             // Save position
             position = PT2.gale_interacter.GetGaleTransform().position;
             encounterPosition = new Vector3(WorldMapFoeLogic.X_WHERE_BATTLE_OCCURRED, WorldMapFoeLogic.Y_WHERE_BATTLE_OCCURRED, 0f);
             //checkpoint = { PT2.gale_interacter._checkpoint_location, ...}
-            modEntry.Logger.Log("Saved position : " + position);
+            Main.logger.Log("Saved position : " + position);
 
             // Save camera
             camera = PT2.camera_control._curr_camera_config;
@@ -82,16 +97,21 @@ namespace SaveStates
             // Save more general mode
             FieldInfo field = typeof(GaleLogicOne).GetField("_gale_state_on_level_load", BindingFlags.NonPublic | BindingFlags.Instance);
             mapMode = (GALE_MODE)field.GetValue(PT2.gale_script) == GALE_MODE.MAP_MODE;
-            modEntry.Logger.Log("Saved map mode : " + mapMode);
+            Main.logger.Log("Saved map mode : " + mapMode);
+            data.Add("room", room);
+            data.Add("doorId", doorId);
         }
 
-        private static void QuickLoad(UnityModManager.ModEntry modEntry)
+        private static void QuickLoad()
         {
+            string room = (string)data.Get("room");
+            int doorId = (int)data.Get("doorId");
             // Clear stuff like PT2.Initialize()
             PT2.sound_g.ForceStopOcarina();
             PT2.director.CloseAllDialoguers();
             PT2.gale_interacter.NoInteractionsCurrently();
 
+            // Load room
             PT2.LoadLevel(room, doorId, Vector3.zero, false, 0.1f, false, true);
             if (mapMode)
             {
@@ -104,16 +124,14 @@ namespace SaveStates
             PT2.gale_script.SendGaleCommand(GALE_CMD.SET_GALE_MODE);
             PT2.gale_script.SendGaleCommand(GALE_CMD.RESET); //idk what this does but it removes at least 1 weird bug so
 
+            // Load position
+            PT2.camera_control.SwitchCameraConfig(camera, 0, true);
             PT2.gale_interacter.GetGaleTransform().position = position;
             WorldMapFoeLogic.X_WHERE_BATTLE_OCCURRED = encounterPosition.x;
             WorldMapFoeLogic.Y_WHERE_BATTLE_OCCURRED = encounterPosition.y;
-
-            PT2.camera_control.SwitchCameraConfig(camera, 0, true);
             OpeningMenuLogic.EnableGameplayElements();
 
-            PT2.gale_interacter.DisplayNumAboveHead(10, DamageNumberLogic.DISPLAY_STYLE.HOVER_AND_FLASH_GREEN, true);
-            //TODO: add nice sound effects
-            modEntry.Logger.Log("ロード済み");
+            Main.logger.Log("ロード済み");
         }
     }
     //[HarmonyPatch(typeof(GaleLogicOne), "Update")]
