@@ -8,11 +8,14 @@ Save and load at the click of a button:
 
 Your quicksave data is stored as a file in the mod folder.
 
+## State preservation
+Everything related to Gail and her progress through the story is preserved across quicksaves and -loads. The state of the npcs and objects in a room is not. More precisely:
+
 This utility saves and loads
 - Location
 - Inventory
 - Health/energy state
-- Game state that is transferred across normal saves (progression flags)
+- Game state that is transferred across normal saves (progression flags, chrysalis locations, etc.)
 
 Does not currently save
 - Gail's exact state (velocity, rolling/swimming/climbing, etc.)
@@ -21,7 +24,7 @@ Does not currently save
 - Pause/Inv menu
 - Cutscene/dialogue progress
 
-Multiple save slots, better controls, more detailed state preservation, and more is still under development.
+*Multiple save slots, better controls, more detailed state preservation, and more is still under development.*
 
 ## Known Issues
 - Currently does not work from the title screen or main menu. First load into a save file before quickloading to avoid bugging the game out.
