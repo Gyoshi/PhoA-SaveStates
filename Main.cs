@@ -26,7 +26,7 @@ namespace SaveStates
         {
             logger = modEntry.Logger;
 
-            dataPath = Path.Combine(modEntry.Path, "savedata.xml");
+            dataPath = Path.Combine(modEntry.Path, "savedata.json");
             data = QuickSaveData.LoadFromJson(dataPath);
 
             // TODO: figure this out (easy fix if camera disabled?)
@@ -59,7 +59,7 @@ namespace SaveStates
 
                 QuickSave();
 
-                QuickSaveData.SaveToXml(dataPath);
+                data.SaveToJson(dataPath);
             }
             if (!PT2.director.control.GRAB_HELD && PT2.director.control.CAM_PRESSED)
             {
@@ -72,23 +72,23 @@ namespace SaveStates
         private static void QuickSave()
         {
             // Save room
-            QuickSaveData.room = Traverse.Create(typeof(PT2)).Field("_room_to_load").GetValue() as string;
-            QuickSaveData.doorId = LevelBuildLogic.door_end_id;
-            Main.logger.Log("Saved room : " + QuickSaveData.room);
+            data.room = Traverse.Create(typeof(PT2)).Field("_room_to_load").GetValue() as string;
+            data.doorId = LevelBuildLogic.door_end_id;
+            Main.logger.Log("Saved room : " + data.room);
 
             // Save position
-            QuickSaveData.position = PT2.gale_interacter.GetGaleTransform().position;
-            QuickSaveData.encounterPosition = new Vector3(WorldMapFoeLogic.X_WHERE_BATTLE_OCCURRED, WorldMapFoeLogic.Y_WHERE_BATTLE_OCCURRED, 0f);
-            QuickSaveData.camera = PT2.camera_control._curr_camera_config;
+            data.position = PT2.gale_interacter.GetGaleTransform().position;
+            data.encounterPosition = new Vector3(WorldMapFoeLogic.X_WHERE_BATTLE_OCCURRED, WorldMapFoeLogic.Y_WHERE_BATTLE_OCCURRED, 0f);
+            data.camera = PT2.camera_control._curr_camera_config;
             //checkpoint = { PT2.gale_interacter._checkpoint_location, ...}
-            Main.logger.Log("Saved position : " + QuickSaveData.position);
+            Main.logger.Log("Saved position : " + data.position);
 
             // Saving Gail's exact state (rolling, dying, climbing, etc.) is probly not worth the effort
             //galeState = Traverse.Create(typeof(GaleLogicOne)).Field("StateFn").GetValue<Action>(PT2.gale_script);
             // Save more general mode
             FieldInfo field = typeof(GaleLogicOne).GetField("_gale_state_on_level_load", BindingFlags.NonPublic | BindingFlags.Instance);
-            QuickSaveData.mapMode = (GALE_MODE)field.GetValue(PT2.gale_script) == GALE_MODE.MAP_MODE;
-            Main.logger.Log("Saved map mode : " + QuickSaveData.mapMode);
+            data.mapMode = (GALE_MODE)field.GetValue(PT2.gale_script) == GALE_MODE.MAP_MODE;
+            Main.logger.Log("Saved map mode : " + data.mapMode);
 
         }
 
@@ -100,8 +100,8 @@ namespace SaveStates
             PT2.gale_interacter.NoInteractionsCurrently();
 
             // Load room
-            PT2.LoadLevel(QuickSaveData.room, QuickSaveData.doorId, Vector3.zero, false, 0.1f, false, true);
-            if (QuickSaveData.mapMode)
+            PT2.LoadLevel(data.room, data.doorId, Vector3.zero, false, 0.1f, false, true);
+            if (data.mapMode)
             {
                 PT2.gale_script.SetGaleModeOnLevelLoad(GALE_MODE.MAP_MODE);
             }
@@ -113,10 +113,10 @@ namespace SaveStates
             PT2.gale_script.SendGaleCommand(GALE_CMD.RESET); //idk what this does but it removes at least 1 weird bug so
 
             // Load position
-            PT2.camera_control.SwitchCameraConfig(QuickSaveData.camera, 0, true);
-            PT2.gale_interacter.GetGaleTransform().position = QuickSaveData.position;
-            WorldMapFoeLogic.X_WHERE_BATTLE_OCCURRED = QuickSaveData.encounterPosition.x;
-            WorldMapFoeLogic.Y_WHERE_BATTLE_OCCURRED = QuickSaveData.encounterPosition.y;
+            PT2.camera_control.SwitchCameraConfig(data.camera, 0, true);
+            PT2.gale_interacter.GetGaleTransform().position = data.position;
+            WorldMapFoeLogic.X_WHERE_BATTLE_OCCURRED = data.encounterPosition.x;
+            WorldMapFoeLogic.Y_WHERE_BATTLE_OCCURRED = data.encounterPosition.y;
             OpeningMenuLogic.EnableGameplayElements();
 
             Main.logger.Log("ロード済み");

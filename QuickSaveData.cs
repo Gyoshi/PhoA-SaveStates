@@ -21,7 +21,7 @@ namespace SaveStates
 
         public void SaveToJson(string filename)
         {
-            string jsonString = JsonUtility.ToJson(this);
+            string jsonString = JsonUtility.ToJson(this, true);
             File.WriteAllText(filename, jsonString);
         }
 
