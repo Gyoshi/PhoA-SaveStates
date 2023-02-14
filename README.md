@@ -1,18 +1,19 @@
 # SaveStates
 Quick save/load for Phoenotopia: Awakening using Unity Mod Manager
 
-Saves and loads at the click of a button:
+Save and load at the click of a button:
 - Press the right analog stick (while centered) to make a **quicksave**
     - Or the Home button on keyboard
 - Hold the grab button, then press the camera button to **quickload**
 
 Your quicksave data is stored as a file in the mod folder.
 
-Saves and loads
+This utility saves and loads
 - Location
 - Inventory
 - Health/energy state
 - Game state that is transferred across normal saves (progression flags)
+
 Does not currently save
 - Gail's exact state (velocity, rolling/swimming/climbing, etc.)
 - State of NPCs, Boxes, Doors
