@@ -97,11 +97,26 @@ namespace SaveStates
 
         private static void QuickLoad()
         {
+            #if DEBUG
+            logger.Log("--- Prefabs before load ---");
+            foreach (var key in LevelBuildLogic.prefabs_in_memory.Keys)
+            {
+                logger.Log(key);
+            }
+            #endif
+
             // Clear stuff like PT2.Initialize()
             PT2.sound_g.ForceStopOcarina();
             PT2.director.CloseAllDialoguers();
             PT2.gale_interacter.NoInteractionsCurrently();
 
+            if (PT2.director.current_opening_menu != null)
+            {
+                #if DEBUG
+                logger.Log("Load from MENU");
+                #endif
+                ClearMenu();
+            }
             PT2.save_file._NS_ProcessSaveDataString(data.saveFileString); // also calls LoadLevel :/
 
             // Load room
@@ -133,8 +148,29 @@ namespace SaveStates
             #if DEBUG
             logger.Log("ロード済み");
 
-            Main.logger.Log("ロード済み");
+            logger.Log("--- Prefabs after load ---");
+            foreach (var key in LevelBuildLogic.prefabs_in_memory.Keys)
+            {
+                logger.Log(key);
+            }
             #endif
+        }
+        public static void ClearMenu()
+        {
+            AnimatedTileLogic[] tileArray = (AnimatedTileLogic[])Traverse.Create(typeof(OpeningMenuLogic)).Field("_AT_array").GetValue(PT2.director.current_opening_menu);
+            for (int i = 0; i < tileArray.Length; i++)
+            {
+                tileArray[i].gameObject.layer = global::GL.num_layer_LIT_OBJECT;
+                tileArray[i]._transform.parent = null;
+                tileArray[i] = null;
+            }
+            PT2.menu.AvatarSetParent(null, new Vector3(27.8f, 1.3f, 0f));
+            PT2.level_builder.parallax_scrollers[4].transform.parent = PT2.level_builder.parallax_scrollers[0].transform.parent;
+            PT2.level_builder.parallax_scrollers[4].transform.localPosition = Vector3.zero;
+            PT2.level_builder.parallax_scrollers[4].transform.localScale = PT2.level_builder.parallax_scrollers[0].transform.localScale;
+            PT2.level_builder.parallax_scrollers[4].gameObject.layer = global::GL.num_layer_DEFAULT;
+
+            PT2.coming_from_opening_menu = true;
         }
     }
     //[HarmonyPatch(typeof(GaleLogicOne), "Update")]
