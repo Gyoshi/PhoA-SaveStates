@@ -30,7 +30,7 @@
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="call xcopy &quot;$(SolutionDir)\bin\Debug\net3.5\SaveStates.dll&quot; &quot;C:\Program Files (x86)\Steam\steamapps\common\Phoenotopia Awakening\Mods\SaveStates&quot; /Y" />
+    <Exec Command="call xcopy &quot;$(SolutionDir)\bin\Debug\net3.5\SaveStates.dll&quot; &quot;C:\Program Files (x86)\Steam\steamapps\common\Phoenotopia Awakening\Mods\SaveStates&quot; /Y&#xD;&#xA;call xcopy &quot;$(SolutionDir)\Info.json&quot; &quot;C:\Program Files (x86)\Steam\steamapps\common\Phoenotopia Awakening\Mods\SaveStates&quot; /Y" />
   </Target>
 
 </Project>
