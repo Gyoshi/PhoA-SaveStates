@@ -68,17 +68,18 @@ namespace SaveStates
         }
         private static void QuickSave()
         {
+            // Save SaveFile data
+            data.saveFileString = PT2.save_file._NS_CompactSaveDataAsString();
+
             // Save room
             data.room = Traverse.Create(typeof(PT2)).Field("_room_to_load").GetValue() as string;
             data.doorId = LevelBuildLogic.door_end_id;
-            Main.logger.Log("Saved room : " + data.room);
 
             // Save position
             data.position = PT2.gale_interacter.GetGaleTransform().position;
             data.encounterPosition = new Vector3(WorldMapFoeLogic.X_WHERE_BATTLE_OCCURRED, WorldMapFoeLogic.Y_WHERE_BATTLE_OCCURRED, 0f);
             data.camera = PT2.camera_control._curr_camera_config;
             //checkpoint = { PT2.gale_interacter._checkpoint_location, ...}
-            Main.logger.Log("Saved position : " + data.position);
 
             // Save more general mode
             FieldInfo field = typeof(GaleLogicOne).GetField("_gale_state_on_level_load", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -86,10 +87,12 @@ namespace SaveStates
 
             // Save stats
             data.galeStats = PT2.gale_interacter.stats;
-            Main.logger.Log("Saved stats: hp-" + data.galeStats.hp + " stamina-"+data.galeStats.stamina);
 
-            // Save savefile data
-            data.saveFileString = PT2.save_file._NS_CompactSaveDataAsString();
+            #if DEBUG
+            logger.Log("Saved room : " + data.room);
+            logger.Log("Saved position : " + data.position);
+            logger.Log("Saved stats: hp-" + data.galeStats.hp + " stamina-"+data.galeStats.stamina);
+            #endif
         }
 
         private static void QuickLoad()
@@ -99,8 +102,10 @@ namespace SaveStates
             PT2.director.CloseAllDialoguers();
             PT2.gale_interacter.NoInteractionsCurrently();
 
+            PT2.save_file._NS_ProcessSaveDataString(data.saveFileString); // also calls LoadLevel :/
+
             // Load room
-            PT2.LoadLevel(data.room, data.doorId, Vector3.zero, false, 0.1f, false, true);
+            PT2.LoadLevel(data.room, data.doorId, Vector3.zero, false, 0f, false, true);
             if (data.mapMode)
             {
                 PT2.gale_script.SetGaleModeOnLevelLoad(GALE_MODE.MAP_MODE);
@@ -117,18 +122,19 @@ namespace SaveStates
             PT2.gale_interacter.GetGaleTransform().position = data.position;
             WorldMapFoeLogic.X_WHERE_BATTLE_OCCURRED = data.encounterPosition.x;
             WorldMapFoeLogic.Y_WHERE_BATTLE_OCCURRED = data.encounterPosition.y;
-            OpeningMenuLogic.EnableGameplayElements();
+            //OpeningMenuLogic.EnableGameplayElements();
 
             // Load stats
             PT2.gale_interacter.stats = data.galeStats;
             PT2.hud_heart.J_UpdateHealth(data.galeStats.hp, data.galeStats.max_hp, false, false);
-            PT2.hud_stamina.J_InitializeStaminaHud(data.galeStats.max_stamina);
+            PT2.hud_stamina.J_InitializeStaminaHud(data.galeStats.max_stamina); //superfluous after savefile data?
             PT2.hud_stamina.J_SetCurrentStamina(data.galeStats.stamina);
 
-            // Load inventory
-            //PT2.save_file.Debug_EmptyInventory();
+            #if DEBUG
+            logger.Log("ロード済み");
 
             Main.logger.Log("ロード済み");
+            #endif
         }
     }
     //[HarmonyPatch(typeof(GaleLogicOne), "Update")]

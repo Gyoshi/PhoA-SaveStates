@@ -48,8 +48,8 @@ namespace SaveStates
             }
             catch (Exception e)
             {
-                Main.logger.Log("Failed to read savedata with exception:\n" + e + "\nRemove the file \'savedata.xml\' from the mod folder if you wish to continue on a blank slate.");
-                throw;
+                Main.logger.Log("Failed to read savedata. Remove the savedata file from the mod folder if you wish to continue on a blank slate.");
+                throw e;
             }
         }
         public void UpdateStats()
