@@ -24,6 +24,8 @@ namespace SaveStates
         public float stamina_buff;
         public float attack_buff;
 
+        public string saveFileString = null;
+
         public void SaveToJson(string filename)
         {
             this.UpdateFields();

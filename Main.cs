@@ -88,7 +88,8 @@ namespace SaveStates
             data.galeStats = PT2.gale_interacter.stats;
             Main.logger.Log("Saved stats: hp-" + data.galeStats.hp + " stamina-"+data.galeStats.stamina);
 
-
+            // Save savefile data
+            data.saveFileString = PT2.save_file._NS_CompactSaveDataAsString();
         }
 
         private static void QuickLoad()
@@ -123,6 +124,9 @@ namespace SaveStates
             PT2.hud_heart.J_UpdateHealth(data.galeStats.hp, data.galeStats.max_hp, false, false);
             PT2.hud_stamina.J_InitializeStaminaHud(data.galeStats.max_stamina);
             PT2.hud_stamina.J_SetCurrentStamina(data.galeStats.stamina);
+
+            // Load inventory
+            //PT2.save_file.Debug_EmptyInventory();
 
             Main.logger.Log("ロード済み");
         }
