@@ -2,7 +2,7 @@
   "Id": "SaveStates",
   "DisplayName": "Save States for PhoA",
   "Author": "Gyoshi",
-  "Version": "0.1.1",
+  "Version": "0.1.2",
   "GameVersion": "1.3.3",
   "AssemblyName": "SaveStates.dll",
   "EntryMethod": "SaveStates.Main.Load"
