@@ -60,7 +60,7 @@ namespace SaveStates
             this.galeStats.attack_buff = attack_buff;
         }
         public void UpdateFields()
-        {
+        {   
             this.hp = galeStats.hp;
             this.max_hp = galeStats.max_hp;
             this.stamina = galeStats.stamina;

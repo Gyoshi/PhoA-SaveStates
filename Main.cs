@@ -88,6 +88,7 @@ namespace SaveStates
             data.galeStats = PT2.gale_interacter.stats;
             Main.logger.Log("Saved stats: hp-" + data.galeStats.hp + " stamina-"+data.galeStats.stamina);
 
+
         }
 
         private static void QuickLoad()
@@ -117,8 +118,11 @@ namespace SaveStates
             WorldMapFoeLogic.Y_WHERE_BATTLE_OCCURRED = data.encounterPosition.y;
             OpeningMenuLogic.EnableGameplayElements();
 
-            //Load stats
+            // Load stats
             PT2.gale_interacter.stats = data.galeStats;
+            PT2.hud_heart.J_UpdateHealth(data.galeStats.hp, data.galeStats.max_hp, false, false);
+            PT2.hud_stamina.J_InitializeStaminaHud(data.galeStats.max_stamina);
+            PT2.hud_stamina.J_SetCurrentStamina(data.galeStats.stamina);
 
             Main.logger.Log("ロード済み");
         }
