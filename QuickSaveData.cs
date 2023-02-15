@@ -44,7 +44,6 @@ namespace SaveStates
             foreach (string file in Directory.GetFiles(Main.dataPath))
             {
                 int slotNumber = int.Parse(Path.GetFileName(file).Remove(2));
-                Main.logger.Log("File slotNumber: " + slotNumber);
                 if (Main.currentSlot == slotNumber)
                 {
                     File.Delete(file);

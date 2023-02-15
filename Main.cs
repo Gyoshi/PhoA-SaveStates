@@ -58,32 +58,52 @@ namespace SaveStates
 
         static void OnUpdate(UnityModManager.ModEntry modEntry, float dt)
         {
-
-            // change slots
-            //data = QuickSaveData.slots[currentSlot];
-            // display slot
-            //PT2.gale_interacter.DisplayNumAboveHead(10, DamageNumberLogic.DISPLAY_STYLE.BLINK_IN_PLACE2, true);
-
+            //Save
             if (PT2.director.control.RIGHT_STICK_CLICK && PT2.director.control.IsControlStickDeadZone(0.4f, false) || Input.GetKeyDown(KeyCode.Home))
             {
-                //Save
-                PT2.gale_interacter.DisplayNumAboveHead(1, DamageNumberLogic.DISPLAY_STYLE.HOVER_AND_FLASH_RED, false);
-
+                // Do the quicksave
                 QuickSave();
+                QuickSaveData.slots[currentSlot] = data;
 
+                // Save quicksave data to disk
                 data.Save();
                 loadAvailable = true;
+                
+                PT2.gale_interacter.DisplayNumAboveHead(currentSlot, DamageNumberLogic.DISPLAY_STYLE.HOVER_AND_FLASH_RED, false);
             }
+            //Load
             bool loadRequested = PT2.director.control.CAM_PRESSED && PT2.director.control.GRAB_HELD || Input.GetKeyDown(KeyCode.End);
             if (loadAvailable && loadRequested)
             {
-                //Load
                 QuickLoad();
 
-                PT2.gale_interacter.DisplayNumAboveHead(1, DamageNumberLogic.DISPLAY_STYLE.HOVER_AND_FLASH_GREEN, true);
+                PT2.gale_interacter.DisplayNumAboveHead(currentSlot, DamageNumberLogic.DISPLAY_STYLE.HOVER_AND_FLASH_GREEN, true);
             }
+            // Swap slots
+            if (Input.GetKey(KeyCode.RightShift))
+            {
+                if (Input.GetKeyDown(KeyCode.LeftArrow)) { currentSlot--; }
+                else if (Input.GetKeyDown(KeyCode.RightArrow)) { currentSlot++; }
+                else { goto NOSWAP; }
+                // Adding max because % does negative values wrong
+                currentSlot = (currentSlot + QuickSaveData.maxSlot - 1) % QuickSaveData.maxSlot + 1;
+
+                if (QuickSaveData.slots.ContainsKey(currentSlot))
+                {
+                    loadAvailable = true;
+                    data = QuickSaveData.slots[currentSlot];
+                }
+                else
+                {
+                    loadAvailable = false;
+                    data = new QuickSaveData();
+                }
+
+                PT2.gale_interacter.DisplayNumAboveHead(currentSlot, DamageNumberLogic.DISPLAY_STYLE.BLINK_IN_PLACE2, true);
+            }
+            NOSWAP: { };
         }
-        private static void QuickSave()
+        private static void QuickSave() // should be instance method
         {
             // Save SaveFile data
             data.saveFileString = PT2.save_file._NS_CompactSaveDataAsString();
