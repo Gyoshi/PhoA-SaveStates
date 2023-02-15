@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
@@ -8,6 +9,9 @@ namespace SaveStates
     public class QuickSaveData
     {
         public string saveFileString = null;
+        public string[] objectCodes = { };
+        public string[] persistentObjectCodes = { };
+        public string[] extremelyPersistentObjectCodes = { };
 
         public int doorId = 0;
         public Vector3 position = Vector3.zero;

@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using UnityEngine;
@@ -71,6 +72,9 @@ namespace SaveStates
         {
             // Save SaveFile data
             data.saveFileString = PT2.save_file._NS_CompactSaveDataAsString();
+            SaveObjectCodes(ref data.objectCodes, "_object_codes");
+            SaveObjectCodes(ref data.persistentObjectCodes, "_persistent_object_codes");
+            SaveObjectCodes(ref data.extremelyPersistentObjectCodes, "_xtreme_object_codes");
 
             // Save room data
             data.doorId = LevelBuildLogic.door_end_id;
@@ -142,6 +146,13 @@ namespace SaveStates
             #if DEBUG
             logger.Log("ロード済み");
             #endif
+        }
+        private static void SaveObjectCodes(ref string[] objectCodesArray, string fieldName)
+        {
+            HashSet<string> codesSet = (HashSet<string>)typeof(SaveFile).GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Instance).GetValue(PT2.save_file);
+            //HashSet<string> codesSet = (HashSet<string>)Traverse.Create<SaveFile>().Field(fieldName).GetValue(PT2.save_file);
+            objectCodesArray = new string[codesSet.Count];
+            codesSet.CopyTo(objectCodesArray, 0);
         }
     }
     //[HarmonyPatch(typeof(GaleLogicOne), "Update")]
