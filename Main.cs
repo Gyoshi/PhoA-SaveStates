@@ -109,6 +109,9 @@ namespace SaveStates
 
             // Load SaveFile data
             PT2.save_file._NS_ProcessSaveDataString(data.saveFileString); // also calls LoadLevel :/
+            LoadObjectCodes(data.objectCodes, "_object_codes");
+            LoadObjectCodes(data.persistentObjectCodes, "_persistent_object_codes");
+            LoadObjectCodes(data.extremelyPersistentObjectCodes, "_xtreme_object_codes");
 
             // Load room
             PT2.LoadLevel(data.room, data.doorId, Vector3.zero, false, 0f, false, true);
@@ -150,9 +153,13 @@ namespace SaveStates
         private static void SaveObjectCodes(ref string[] objectCodesArray, string fieldName)
         {
             HashSet<string> codesSet = (HashSet<string>)typeof(SaveFile).GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Instance).GetValue(PT2.save_file);
-            //HashSet<string> codesSet = (HashSet<string>)Traverse.Create<SaveFile>().Field(fieldName).GetValue(PT2.save_file);
             objectCodesArray = new string[codesSet.Count];
             codesSet.CopyTo(objectCodesArray, 0);
+        }
+        private static void LoadObjectCodes(string[] objectCodesArray, string fieldName)
+        {
+            HashSet<string> codesSet = new HashSet<string>(objectCodesArray);
+            typeof(SaveFile).GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Instance).SetValue(PT2.save_file, codesSet);
         }
     }
     //[HarmonyPatch(typeof(GaleLogicOne), "Update")]
