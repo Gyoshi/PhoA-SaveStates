@@ -142,6 +142,11 @@ namespace SaveStates
             PT2.director.CloseAllDialoguers();
             PT2.gale_interacter.NoInteractionsCurrently();
 
+            // From death
+            PT2.screen_covers.CancelBlackBars();
+            SpriteRenderer menuGaleSprite = (SpriteRenderer)typeof(ScreenCoversLogic).GetField("_menu_gale_sprite", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(PT2.screen_covers);
+            menuGaleSprite.gameObject.SetActive(false);
+
             // Load SaveFile data
             PT2.save_file._NS_ProcessSaveDataString(data.saveFileString); // also calls LoadLevel :/
             LoadObjectCodes(data.objectCodes, "_object_codes");
