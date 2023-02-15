@@ -11,17 +11,19 @@ Your quicksave data is stored as a file in the mod folder.
 *Multiple save slots, better controls, more detailed state preservation, and more is still under development.*
 
 ## State preservation
-Everything related to Gail and her progress through the story is preserved across quicksaves and -loads. The state of the npcs and objects in a room is not. More precisely:
+Everything related to Gail and her progress through the story is preserved across quicksaves and -loads. Most of the state of the npcs and objects in a room is not. More precisely:
 
 This utility saves and loads
 - Location
 - Inventory
 - Health/energy state
 - Game state that is transferred across normal saves (progression flags, chrysalis locations, etc.)
+- State of doors, boxes
 
 Does not currently save
 - Gail's exact state (velocity, rolling/swimming/climbing, etc.)
-- State of NPCs, Boxes, Doors
+- State of NPCs
+- Location of Boxes
 - Projectiles, Bombs
 - Pause/Inv menu
 - Cutscene/dialogue progress
@@ -29,7 +31,6 @@ Does not currently save
 ## Known Issues
 - Currently does not work from the title screen or main menu. First load into a save file before quickloading to avoid bugging the game out.
 - Quickloading will fail if you do it during a level transition, but you can just quickload again.
-- Boxes stay broken after load if you didn't go to the overworld map between saving and loading
 
 ---
 Feel free to @Gyoshi on the Discord [Phoenotopia Fan Server](https://discord.gg/Swd6zcTCQZ) for whatever
