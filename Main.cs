@@ -15,17 +15,27 @@ namespace SaveStates
     {        
         public static QuickSaveData data;
         public static string dataPath;
+        public static int currentSlot = 1;
+        public static bool loadAvailable = false;
 
         public static Harmony harmony;
         public static UnityModManager.ModEntry.ModLogger logger;
 
-        // Compiled without dependencies on UnityModManagerNet
         static void Load(UnityModManager.ModEntry modEntry)
         {
             logger = modEntry.Logger;
 
-            dataPath = Path.Combine(modEntry.Path, "savedata.json");
-            data = QuickSaveData.LoadFromJson(dataPath);
+            dataPath = Path.Combine(modEntry.Path, "Quick save files");
+            Directory.CreateDirectory(dataPath);
+            QuickSaveData.readFiles();
+            if (QuickSaveData.slots.ContainsKey(currentSlot)) {
+                loadAvailable = true;
+                data = QuickSaveData.slots[currentSlot];
+            }
+            else
+            {
+                data = new QuickSaveData();
+            }
 
             // TODO: figure this out (easy fix if camera disabled?)
             //modEntry.OnUpdate = OnUpdate;
@@ -48,9 +58,12 @@ namespace SaveStates
 
         static void OnUpdate(UnityModManager.ModEntry modEntry, float dt)
         {
-            //display save slot
+
+            // change slots
+            //data = QuickSaveData.slots[currentSlot];
+            // display slot
             //PT2.gale_interacter.DisplayNumAboveHead(10, DamageNumberLogic.DISPLAY_STYLE.BLINK_IN_PLACE2, true);
-            
+
             if (PT2.director.control.RIGHT_STICK_CLICK && PT2.director.control.IsControlStickDeadZone(0.4f, false) || Input.GetKeyDown(KeyCode.Home))
             {
                 //Save
@@ -58,9 +71,11 @@ namespace SaveStates
 
                 QuickSave();
 
-                data.SaveToJson(dataPath);
+                data.Save();
+                loadAvailable = true;
             }
-            if (PT2.director.control.CAM_PRESSED && PT2.director.control.GRAB_HELD || Input.GetKeyDown(KeyCode.End))
+            bool loadRequested = PT2.director.control.CAM_PRESSED && PT2.director.control.GRAB_HELD || Input.GetKeyDown(KeyCode.End);
+            if (loadAvailable && loadRequested)
             {
                 //Load
                 QuickLoad();
