@@ -9,7 +9,6 @@ namespace SaveStates
     {
         public string saveFileString = null;
 
-        public string room = null;
         public int doorId = 0;
         public Vector3 position = Vector3.zero;
         public Vector3 encounterPosition = Vector3.zero;
@@ -27,6 +26,8 @@ namespace SaveStates
 
         public float staminaStun = 0f;
         public bool grounded = false;
+
+        public string room { get { return saveFileString.Split(',')[0]; } }
 
         public void SaveToJson(string filename)
         {

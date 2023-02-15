@@ -72,8 +72,7 @@ namespace SaveStates
             // Save SaveFile data
             data.saveFileString = PT2.save_file._NS_CompactSaveDataAsString();
 
-            // Save room
-            data.room = Traverse.Create(typeof(PT2)).Field("_room_to_load").GetValue() as string;
+            // Save room data
             data.doorId = LevelBuildLogic.door_end_id;
 
             // Save position
