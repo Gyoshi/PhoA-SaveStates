@@ -131,7 +131,7 @@ namespace SaveStates
             PT2.gale_interacter.GetGaleTransform().position = data.position;
             WorldMapFoeLogic.X_WHERE_BATTLE_OCCURRED = data.encounterPosition.x;
             WorldMapFoeLogic.Y_WHERE_BATTLE_OCCURRED = data.encounterPosition.y;
-            //OpeningMenuLogic.EnableGameplayElements();
+            PT2.gale_interacter.ScanForInteractSigns();
 
             // Load stats
             PT2.gale_interacter.stats = data.galeStats;
