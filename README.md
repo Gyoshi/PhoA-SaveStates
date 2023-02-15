@@ -29,6 +29,9 @@ Does not currently save
 ## Known Issues
 - Currently does not work from the title screen or main menu. First load into a save file before quickloading to avoid bugging the game out.
 - Quickloading will fail if you do it during a level transition, but you can just quickload again.
+- Boxes stay broken after load if you didn't go to the overworld map between saving and loading
 
 ---
 Feel free to @Gyoshi on the Discord [Phoenotopia Fan Server](https://discord.gg/Swd6zcTCQZ) for whatever
+
+For more info about what I plan to work on, you can look at the [PhoA SaveStates Trello board](https://trello.com/b/LoMwIPi0/phoa-savestates). I don't really expect anyone to be that interested, but I put up a pretty background, so I felt like sharing
