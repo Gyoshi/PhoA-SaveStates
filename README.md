@@ -36,7 +36,7 @@ Does not currently save
 Requires [Unity Mod Manager](https://www.nexusmods.com/site/mods/21/). You just need the `PhoA-SaveStates.zip` file [(which you can download here)](https://github.com/Gyoshi/PhoA-SaveStates/releases/latest), and then follow the mod installation instructions for Unity Mod Manager.
 
 ## Known Issues
-- Currently does not work from the title screen or main menu. First load into a save file before quickloading to avoid bugging the game out.
+- Currently does not work from the title screen, main menu, or death screen. First load into a save file before quickloading to avoid bugging the game out.
 - Quickloading will fail if you do it during a level transition, but you can just quickload again.
 
 ---
