@@ -31,7 +31,7 @@ Does not currently save
 - Cutscene/dialogue progress
 
 ## Installation
-Requires (Unity Mod Manager)[https://www.nexusmods.com/site/mods/21/]. You just need the `PhoA-SaveStates.zip` file, and then follow the mod installation instructions for Unity Mod Manager.
+Requires [Unity Mod Manager](https://www.nexusmods.com/site/mods/21/). You just need the `PhoA-SaveStates.zip` file, and then follow the mod installation instructions for Unity Mod Manager.
 
 ## Known Issues
 - Currently does not work from the title screen or main menu. First load into a save file before quickloading to avoid bugging the game out.
