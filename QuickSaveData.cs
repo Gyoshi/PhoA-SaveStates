@@ -23,6 +23,7 @@ namespace SaveStates
 
         [NonSerialized]
         public GaleStats galeStats = new GaleStats();
+        public float _lift_power = 4f;
         public int _hp;
         public int _max_hp;
         public float _stamina;
@@ -99,6 +100,7 @@ namespace SaveStates
         }
         public void UpdateStats()
         {
+            this.galeStats.lift_power = _lift_power;
             this.galeStats.hp = _hp;
             this.galeStats.max_hp = _max_hp;
             this.galeStats.stamina = _stamina;
@@ -108,6 +110,7 @@ namespace SaveStates
         }
         public void UpdateFields()
         {
+            this._lift_power = galeStats.lift_power;
             this._hp = galeStats.hp;
             this._max_hp = galeStats.max_hp;
             this._stamina = galeStats.stamina;
