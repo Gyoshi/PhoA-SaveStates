@@ -68,16 +68,20 @@ namespace SaveStates
                 // Save quicksave data to disk
                 data.Save();
                 loadAvailable = true;
-                
-                PT2.gale_interacter.DisplayNumAboveHead(currentSlot, DamageNumberLogic.DISPLAY_STYLE.HOVER_AND_FLASH_RED, false);
+
+                PT2.display_messages.DisplayMessage("Saved to Slot " + currentSlot, DisplayMessagesLogic.MSG_TYPE.GALE_MINUS_STATUS);
             }
             //Load
             bool loadRequested = PT2.director.control.CAM_PRESSED && PT2.director.control.GRAB_HELD || Input.GetKeyDown(KeyCode.End);
-            if (loadAvailable && loadRequested)
+            if (loadRequested && loadAvailable)
             {
                 QuickLoad();
 
-                PT2.gale_interacter.DisplayNumAboveHead(currentSlot, DamageNumberLogic.DISPLAY_STYLE.HOVER_AND_FLASH_GREEN, true);
+                PT2.display_messages.DisplayMessage("Loaded Slot " + currentSlot, DisplayMessagesLogic.MSG_TYPE.GALE_PLUS_STATUS);
+            }
+            if (loadRequested && !loadAvailable)
+            {
+                PT2.display_messages.DisplayMessage("Slot " + currentSlot + " is empty!", DisplayMessagesLogic.MSG_TYPE.INVENTORY_FULL);
             }
             // Swap slots
             if (Input.GetKey(KeyCode.RightShift))
@@ -88,18 +92,21 @@ namespace SaveStates
                 // Adding max because % does negative values wrong
                 currentSlot = (currentSlot + QuickSaveData.maxSlot - 1) % QuickSaveData.maxSlot + 1;
 
+                string message = "Slot " + currentSlot;
+
                 if (QuickSaveData.slots.ContainsKey(currentSlot))
                 {
                     loadAvailable = true;
                     data = QuickSaveData.slots[currentSlot];
+                    message += "<sprite=30>";
                 }
                 else
                 {
                     loadAvailable = false;
                     data = new QuickSaveData();
                 }
-
-                PT2.gale_interacter.DisplayNumAboveHead(currentSlot, DamageNumberLogic.DISPLAY_STYLE.BLINK_IN_PLACE2, true);
+                PT2.display_messages.DisplayMessage(message, DisplayMessagesLogic.MSG_TYPE.SMALL_ITEM_GET);
+                
             }
             NOSWAP: { };
         }
@@ -138,6 +145,7 @@ namespace SaveStates
         private static void QuickLoad()
         {
             // Clear stuff like PT2.Initialize()
+            //PT2.level_load_in_progress = false;
             PT2.sound_g.ForceStopOcarina();
             PT2.director.CloseAllDialoguers();
             PT2.gale_interacter.NoInteractionsCurrently();
