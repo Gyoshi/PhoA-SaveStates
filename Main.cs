@@ -108,7 +108,6 @@ namespace SaveStates
                 }
                 NOSAVE: { }
                 // Load
-                loadRequested = PT2.director.control.GRAB_PRESSED || Input.GetKeyDown(KeyCode.End);
                 if (loadRequested && data.loadAvailable)
                 {
                     data.QuickLoad();
