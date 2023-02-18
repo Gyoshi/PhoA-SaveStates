@@ -17,7 +17,7 @@ namespace SaveStates
     {
         public static Dictionary<int, QuickSaveData> slots = new Dictionary<int, QuickSaveData>();
         public static int maxSlot = 16;
-        public static int autoSaveSlot = 16;
+        public static int autoSaveSlot = 0;
 
         public static QuickSaveData data;
         public static string dataPath;
@@ -73,7 +73,7 @@ namespace SaveStates
             if (PT2.director.control.CAM_PRESSED && settings.freeze)
             {
                 PT2.screen_covers.HazeScreen("9999ff", 0.6f, 0f, float.PositiveInfinity);
-                Time.timeScale = 0f; //on cam down instead?
+                Time.timeScale = 0f;
             }
             else if (CAM_RELEASED && settings.freeze)
             {
@@ -87,6 +87,13 @@ namespace SaveStates
                 // Save
                 if (PT2.director.control.RIGHT_STICK_CLICK && PT2.director.control.IsControlStickDeadZone(0.4f, false) || Input.GetKeyDown(KeyCode.Home))
                 {
+                    if (currentSlot == autoSaveSlot)
+                    {
+                        PT2.sound_g.PlayGlobalCommonSfx(20, 1f, 1f, 2);
+                        PT2.display_messages.DisplayMessage("Cannot save to Autosave Slot!", DisplayMessagesLogic.MSG_TYPE.INVENTORY_FULL);
+                        goto NOSAVE;
+                    }
+
                     // Do the quicksave
                     data.QuickSave();
                     slots[currentSlot] = data;
@@ -97,6 +104,7 @@ namespace SaveStates
                     PT2.sound_g.PlayGlobalCommonSfx(122, 1f, 0.5f, 1);
                     PT2.display_messages.DisplayMessage("Saved to Slot " + currentSlot, DisplayMessagesLogic.MSG_TYPE.GALE_MINUS_STATUS);
                 }
+                NOSAVE: { }
                 // Load
                 loadRequested = PT2.director.control.GRAB_PRESSED || Input.GetKeyDown(KeyCode.End);
                 if (loadRequested && data.loadAvailable)
@@ -104,12 +112,14 @@ namespace SaveStates
                     data.QuickLoad();
 
                     PT2.sound_g.PlayGlobalCommonSfx(96, 0.7f, 1.5f, 2);
-                    PT2.display_messages.DisplayMessage("Loaded Slot " + currentSlot, DisplayMessagesLogic.MSG_TYPE.GALE_PLUS_STATUS);
+                    string message = (currentSlot == autoSaveSlot) ? "Loaded Autosave" : "Loaded Slot " + currentSlot;
+                    PT2.display_messages.DisplayMessage(message, DisplayMessagesLogic.MSG_TYPE.GALE_PLUS_STATUS);
                 }
                 if (loadRequested && !data.loadAvailable)
                 {
                     PT2.sound_g.PlayGlobalCommonSfx(134, 1f, 1f, 2);
-                    PT2.display_messages.DisplayMessage("Slot " + currentSlot + " is empty!", DisplayMessagesLogic.MSG_TYPE.INVENTORY_FULL);
+                    string message = (currentSlot == autoSaveSlot) ? "Autosave is empty!" : "Slot " + currentSlot + " is empty!";
+                    PT2.display_messages.DisplayMessage(message, DisplayMessagesLogic.MSG_TYPE.INVENTORY_FULL);
                 }
                 // Swap slots
                 if (PT2.director.control.SPRINT_PRESSED || Input.GetKeyDown(KeyCode.PageUp)) { currentSlot--; }
@@ -151,9 +161,12 @@ namespace SaveStates
         private static QuickSaveData GetSlot(ref int slotNumber)
         {
             // Adding max because % does negative values wrong
-            slotNumber = (slotNumber + maxSlot - 1) % maxSlot + 1;
+            slotNumber = (slotNumber + maxSlot) % maxSlot;
 
             string message = "Slot " + slotNumber;
+
+            if (slotNumber == autoSaveSlot)
+                message = "Autosave";
 
             if (slots.ContainsKey(slotNumber))
             {
