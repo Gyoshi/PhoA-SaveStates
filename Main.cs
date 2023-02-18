@@ -13,11 +13,13 @@ namespace SaveStates
     [EnableReloading]
 #endif
     static class Main
-    {        
+    {
+        public static Dictionary<int, QuickSaveData> slots = new Dictionary<int, QuickSaveData>();
+        public static int maxSlot = 16;
+
         public static QuickSaveData data;
         public static string dataPath;
         public static int currentSlot = 1;
-        public static bool loadAvailable = false;
         public static bool CAM_HELD = false;
         public static bool CAM_RELEASED = false;
 
@@ -33,15 +35,8 @@ namespace SaveStates
 
             dataPath = Path.Combine(modEntry.Path, "Quick save files");
             Directory.CreateDirectory(dataPath);
-            QuickSaveData.readFiles();
-            if (QuickSaveData.slots.ContainsKey(currentSlot)) {
-                loadAvailable = true;
-                data = QuickSaveData.slots[currentSlot];
-            }
-            else
-            {
-                data = new QuickSaveData();
-            }
+            readFiles(dataPath);
+            data = GetSlot(ref currentSlot);
 
             modEntry.OnUpdate = OnUpdate;
 
@@ -90,26 +85,25 @@ namespace SaveStates
                 if (PT2.director.control.RIGHT_STICK_CLICK && PT2.director.control.IsControlStickDeadZone(0.4f, false) || Input.GetKeyDown(KeyCode.Home))
                 {
                     // Do the quicksave
-                    QuickSave();
-                    QuickSaveData.slots[currentSlot] = data;
+                    data.QuickSave();
+                    slots[currentSlot] = data;
 
                     // Save quicksave data to disk
-                    data.Save();
-                    loadAvailable = true; //should be readonly property
+                    data.Write(dataPath);
 
                     PT2.sound_g.PlayGlobalCommonSfx(122, 1f, 0.5f, 1);
                     PT2.display_messages.DisplayMessage("Saved to Slot " + currentSlot, DisplayMessagesLogic.MSG_TYPE.GALE_MINUS_STATUS);
                 }
                 // Load
                 bool loadRequested = PT2.director.control.GRAB_PRESSED || Input.GetKeyDown(KeyCode.End);
-                if (loadRequested && loadAvailable)
+                if (loadRequested && data.loadAvailable)
                 {
-                    QuickLoad();
+                    data.QuickLoad();
 
                     PT2.sound_g.PlayGlobalCommonSfx(96, 0.7f, 1.5f, 2);
                     PT2.display_messages.DisplayMessage("Loaded Slot " + currentSlot, DisplayMessagesLogic.MSG_TYPE.GALE_PLUS_STATUS);
                 }
-                if (loadRequested && !loadAvailable)
+                if (loadRequested && !data.loadAvailable)
                 {
                     PT2.sound_g.PlayGlobalCommonSfx(134, 1f, 1f, 2);
                     PT2.display_messages.DisplayMessage("Slot " + currentSlot + " is empty!", DisplayMessagesLogic.MSG_TYPE.INVENTORY_FULL);
@@ -118,7 +112,7 @@ namespace SaveStates
                 if (PT2.director.control.SPRINT_PRESSED || Input.GetKeyDown(KeyCode.PageUp)) { currentSlot--; }
                 else if (PT2.director.control.CROUCH_PRESSED || Input.GetKeyDown(KeyCode.PageDown)) { currentSlot++; }
                 else { goto NOSWAP; }
-                SwapSlots();
+                data = GetSlot(ref currentSlot);
                 PT2.sound_g.PlayGlobalCommonSfx(124, 1f, 1f, 2);
                 
                 NOSWAP: { };
@@ -140,137 +134,40 @@ namespace SaveStates
             settings.Save(modEntry);
         }
 
-        private static void QuickSave() // should be instance method of QuickSaveData
+        public static void readFiles(string dataPath)
         {
-            // Save SaveFile data
-            data.saveFileString = PT2.save_file._NS_CompactSaveDataAsString();
-            SaveObjectCodes(ref data.objectCodes, "_object_codes");
-            SaveObjectCodes(ref data.persistentObjectCodes, "_persistent_object_codes");
-            SaveObjectCodes(ref data.extremelyPersistentObjectCodes, "_xtreme_object_codes");
-
-            // Save room data
-            data.doorId = LevelBuildLogic.door_end_id;
-
-            // Save position
-            data.position = PT2.gale_interacter.GetGaleTransform().position;
-            data.encounterPosition = new Vector3(WorldMapFoeLogic.X_WHERE_BATTLE_OCCURRED, WorldMapFoeLogic.Y_WHERE_BATTLE_OCCURRED, 0f);
-            data.camera = PT2.camera_control._curr_camera_config;
-            //checkpoint = { PT2.gale_interacter._checkpoint_location, ...}
-
-            // Save more general mode
-            FieldInfo field = typeof(GaleLogicOne).GetField("_gale_state_on_level_load", BindingFlags.NonPublic | BindingFlags.Instance);
-            data.mapMode = (GALE_MODE)field.GetValue(PT2.gale_script) == GALE_MODE.MAP_MODE;
-
-            // Save stats
-            data.galeStats = PT2.gale_interacter.stats;
-
-            // Save Gale Logic
-            if (PT2.gale_script is GaleLogicOne galeLogicOne)
+            foreach (string file in Directory.GetFiles(dataPath))
             {
-                data.staminaStun = galeLogicOne.stamina_stun;
-                data.grounded = galeLogicOne._mover2.collision_info.below;
+                int slotNumber = int.Parse(Path.GetFileName(file).Remove(2));
+                if (slotNumber < 1 || slotNumber > maxSlot)
+                    continue;
+
+                slots[slotNumber] = QuickSaveData.Read(file);
             }
         }
-
-        private static void QuickLoad()
-        {
-            // Clear stuff like PT2.Initialize()
-            //PT2.level_load_in_progress = false;
-            PT2.sound_g.ForceStopOcarina();
-            PT2.director.CloseAllDialoguers();
-            PT2.gale_interacter.NoInteractionsCurrently();
-
-            // From death
-            PT2.screen_covers.CancelBlackBars();
-            SpriteRenderer menuGaleSprite = (SpriteRenderer)typeof(ScreenCoversLogic)
-                .GetField("_menu_gale_sprite", BindingFlags.NonPublic | BindingFlags.Instance)
-                .GetValue(PT2.screen_covers);
-            menuGaleSprite.gameObject.SetActive(false);
-
-            // Load SaveFile data
-            PT2.save_file._NS_ProcessSaveDataString(data.saveFileString); // also calls LoadLevel :/
-            LoadObjectCodes(data.objectCodes, "_object_codes");
-            LoadObjectCodes(data.persistentObjectCodes, "_persistent_object_codes");
-            LoadObjectCodes(data.extremelyPersistentObjectCodes, "_xtreme_object_codes");
-
-            // Load room
-            PT2.LoadLevel(data.room, data.doorId, Vector3.zero, false, 0f, false, true);
-            if (data.mapMode)
-            {
-                PT2.gale_script.SetGaleModeOnLevelLoad(GALE_MODE.MAP_MODE);
-            }
-            else
-            {
-                PT2.gale_script.SetGaleModeOnLevelLoad(GALE_MODE.DEFAULT);
-            }
-            PT2.gale_script.SendGaleCommand(GALE_CMD.SET_GALE_MODE);
-            PT2.gale_script.SendGaleCommand(GALE_CMD.RESET); //idk what this does but it removes at least 1 weird bug so
-
-            // Load position
-            PT2.camera_control.SwitchCameraConfig(data.camera, 0, true);
-            PT2.gale_interacter.GetGaleTransform().position = data.position;
-            WorldMapFoeLogic.X_WHERE_BATTLE_OCCURRED = data.encounterPosition.x;
-            WorldMapFoeLogic.Y_WHERE_BATTLE_OCCURRED = data.encounterPosition.y;
-            PT2.gale_interacter.ScanForInteractSigns();
-
-            // Load stats
-            PT2.gale_interacter.stats = data.galeStats;
-            PT2.hud_heart.J_UpdateHealth(data.galeStats.hp, data.galeStats.max_hp, false, false);
-            PT2.hud_stamina.J_InitializeStaminaHud(data.galeStats.max_stamina); //superfluous after savefile data?
-            PT2.hud_stamina.J_SetCurrentStamina(data.galeStats.stamina);
-
-            // Load Gale Logic
-            if (PT2.gale_script is GaleLogicOne galeLogicOne)
-            {
-                galeLogicOne.stamina_stun = data.staminaStun;
-                galeLogicOne._mover2.collision_info.below = data.grounded;
-            }
-
-            #if DEBUG
-            logger.Log("ロード済み");
-            #endif
-        }
-
-        private static void SwapSlots()
+        private static QuickSaveData GetSlot(ref int slotNumber)
         {
             // Adding max because % does negative values wrong
-            currentSlot = (currentSlot + QuickSaveData.maxSlot - 1) % QuickSaveData.maxSlot + 1;
+            slotNumber = (slotNumber + maxSlot - 1) % maxSlot + 1;
 
-            string message = "Slot " + currentSlot;
+            string message = "Slot " + slotNumber;
 
-            if (QuickSaveData.slots.ContainsKey(currentSlot))
+            if (slots.ContainsKey(slotNumber))
             {
-                loadAvailable = true;
-                data = QuickSaveData.slots[currentSlot];
+                data = slots[slotNumber];
                 message += "<sprite=30>";
             }
             else
             {
-                loadAvailable = false;
                 data = new QuickSaveData();
             }
             PT2.display_messages.DisplayMessage(message, DisplayMessagesLogic.MSG_TYPE.SMALL_ITEM_GET);
-        }
-
-        private static void SaveObjectCodes(ref string[] objectCodesArray, string fieldName)
-        {
-            HashSet<string> codesSet = (HashSet<string>)typeof(SaveFile)
-                .GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Instance)
-                .GetValue(PT2.save_file);
-            objectCodesArray = new string[codesSet.Count];
-            codesSet.CopyTo(objectCodesArray, 0);
-        }
-        private static void LoadObjectCodes(string[] objectCodesArray, string fieldName)
-        {
-            HashSet<string> codesSet = new HashSet<string>(objectCodesArray);
-            typeof(SaveFile)
-                .GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Instance)
-                .SetValue(PT2.save_file, codesSet);
+            return data;
         }
     }
 
     [HarmonyPatch(typeof(CameraLogic), "ZoomSimple")]
-    public class Zoom_Patch //does nothing with time pause / input silence
+    public class Zoom_Patch
     {
         public static bool Prefix()
         {
