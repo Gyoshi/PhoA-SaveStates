@@ -112,8 +112,8 @@ namespace SaveStates
                     PT2.display_messages.DisplayMessage("Slot " + currentSlot + " is empty!", DisplayMessagesLogic.MSG_TYPE.INVENTORY_FULL);
                 }
                 // Swap slots
-                if (PT2.director.control.SPRINT_PRESSED) { currentSlot--; }
-                else if (PT2.director.control.CROUCH_PRESSED) { currentSlot++; }
+                if (PT2.director.control.SPRINT_PRESSED || Input.GetKeyDown(KeyCode.PageUp)) { currentSlot--; }
+                else if (PT2.director.control.CROUCH_PRESSED || Input.GetKeyDown(KeyCode.PageDown)) { currentSlot++; }
                 else { goto NOSWAP; }
                 SwapSlots();
                 NOSWAP: { };
