@@ -19,7 +19,7 @@ namespace SaveStates
         public static int maxSlot = 16;
         public static int autosaveSlot = 0;
 
-        public static QuickSaveData data;
+        public static QuickSaveData currentData;
         public static string dataPath;
         public static int currentSlot = 1;
         public static bool CAM_HELD = false;
@@ -39,7 +39,7 @@ namespace SaveStates
             dataPath = Path.Combine(modEntry.Path, "Quick save files");
             Directory.CreateDirectory(dataPath);
             readFiles(dataPath);
-            data = GetSlot(ref currentSlot);
+            currentData = GetSlot(ref currentSlot, false); // offending line
 
             modEntry.OnUpdate = OnUpdate;
 
@@ -97,26 +97,26 @@ namespace SaveStates
                     }
 
                     // Do the quicksave
-                    data.QuickSave();
-                    slots[currentSlot] = data;
+                    currentData.QuickSave();
+                    slots[currentSlot] = currentData;
 
                     // Save quicksave data to disk
-                    data.Write(dataPath);
+                    currentData.Write(dataPath);
 
                     PT2.sound_g.PlayGlobalCommonSfx(122, 1f, 0.5f, 1);
                     PT2.display_messages.DisplayMessage("Saved to Slot " + currentSlot, DisplayMessagesLogic.MSG_TYPE.GALE_MINUS_STATUS);
                 }
-                NOSAVE: { }
+            NOSAVE: { }
                 // Load
-                if (loadRequested && data.loadAvailable)
+                if (loadRequested && currentData.loadAvailable)
                 {
-                    data.QuickLoad();
+                    currentData.QuickLoad();
 
                     PT2.sound_g.PlayGlobalCommonSfx(96, 0.7f, 1.5f, 2);
                     string message = (currentSlot == autosaveSlot) ? "Loaded Autosave" : "Loaded Slot " + currentSlot;
                     PT2.display_messages.DisplayMessage(message, DisplayMessagesLogic.MSG_TYPE.GALE_PLUS_STATUS);
                 }
-                if (loadRequested && !data.loadAvailable)
+                if (loadRequested && !currentData.loadAvailable)
                 {
                     PT2.sound_g.PlayGlobalCommonSfx(134, 1f, 1f, 2);
                     string message = (currentSlot == autosaveSlot) ? "Autosave is empty!" : "Slot " + currentSlot + " is empty!";
@@ -126,10 +126,10 @@ namespace SaveStates
                 if (PT2.director.control.SPRINT_PRESSED || Input.GetKeyDown(KeyCode.PageUp)) { currentSlot--; }
                 else if (PT2.director.control.CROUCH_PRESSED || Input.GetKeyDown(KeyCode.PageDown)) { currentSlot++; }
                 else { goto NOSWAP; }
-                data = GetSlot(ref currentSlot);
+                currentData = GetSlot(ref currentSlot);
                 PT2.sound_g.PlayGlobalCommonSfx(124, 1f, 1f, 2);
-                
-                NOSWAP: { };
+
+            NOSWAP: { };
 
                 PT2.director.control.SilenceAllInputsThisFrame();
             }
@@ -159,7 +159,7 @@ namespace SaveStates
                 slots[slotNumber] = QuickSaveData.Read(file);
             }
         }
-        private static QuickSaveData GetSlot(ref int slotNumber)
+        private static QuickSaveData GetSlot(ref int slotNumber, bool notification = true)
         {
             // Adding max because % does negative values wrong
             slotNumber = (slotNumber + maxSlot) % maxSlot;
@@ -171,15 +171,16 @@ namespace SaveStates
 
             if (slots.ContainsKey(slotNumber))
             {
-                data = slots[slotNumber];
+                currentData = slots[slotNumber];
                 message += "<sprite=30>";
             }
             else
             {
-                data = new QuickSaveData();
+                currentData = new QuickSaveData();
             }
-            PT2.display_messages.DisplayMessage(message, DisplayMessagesLogic.MSG_TYPE.SMALL_ITEM_GET);
-            return data;
+            if (notification)
+                PT2.display_messages.DisplayMessage(message, DisplayMessagesLogic.MSG_TYPE.SMALL_ITEM_GET);
+            return currentData;
         }
 
         public static void Autosave()
@@ -188,7 +189,7 @@ namespace SaveStates
             autosaveData.QuickSave();
             slots[autosaveSlot] = autosaveData;
             if (currentSlot == autosaveSlot)
-                data = autosaveData;
+                currentData = autosaveData;
         }
     }
 
