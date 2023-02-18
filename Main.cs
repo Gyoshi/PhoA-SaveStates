@@ -205,9 +205,9 @@ namespace SaveStates
     [HarmonyPatch(typeof(PT2), "LoadLevel")]
     public static class LoadLevel_Patch
     {
-        public static void Prefix()
+        public static void Prefix(object room_name)
         {
-            if (!Main.loadRequested)
+            if (!Main.loadRequested && (string)room_name != "limbo")
                 Main.Autosave();
         }
     }
