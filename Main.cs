@@ -24,6 +24,7 @@ namespace SaveStates
         public static int currentSlot = 1;
         public static bool CAM_HELD = false;
         public static bool CAM_RELEASED = false;
+        public static bool loadRequested = false;
 
         public static Harmony harmony;
         public static UnityModManager.ModEntry.ModLogger logger;
@@ -45,7 +46,7 @@ namespace SaveStates
             settings = Settings.Load<Settings>(modEntry);
             modEntry.OnGUI = OnGUI;
             modEntry.OnSaveGUI = OnSaveGUI;
-#if DEBUG
+            #if DEBUG
             modEntry.OnUnload = Unload;
             #endif
             harmony = new Harmony(modEntry.Info.Id);
@@ -97,7 +98,7 @@ namespace SaveStates
                     PT2.display_messages.DisplayMessage("Saved to Slot " + currentSlot, DisplayMessagesLogic.MSG_TYPE.GALE_MINUS_STATUS);
                 }
                 // Load
-                bool loadRequested = PT2.director.control.GRAB_PRESSED || Input.GetKeyDown(KeyCode.End);
+                loadRequested = PT2.director.control.GRAB_PRESSED || Input.GetKeyDown(KeyCode.End);
                 if (loadRequested && data.loadAvailable)
                 {
                     data.QuickLoad();
@@ -188,12 +189,13 @@ namespace SaveStates
         }
     }
 
-    [HarmonyPatch(typeof(FunnelStart), "_EnterDoor")]
-    public class Autosave_Patch
+    [HarmonyPatch(typeof(PT2), "LoadLevel")]
+    public static class LoadLevel_Patch
     {
         public static void Prefix()
         {
-            Main.Autosave();
+            if (!Main.loadRequested)
+                Main.Autosave();
         }
     }
 }
