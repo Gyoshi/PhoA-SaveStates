@@ -70,7 +70,9 @@ namespace SaveStates
             CAM_RELEASED = CAM_HELD && !player.GetButton("Camera");
             CAM_HELD = player.GetButton("Camera");
 
-            if (PT2.director.control.CAM_PRESSED && settings.freeze)
+            loadRequested = PT2.director.control.GRAB_PRESSED || Input.GetKeyDown(KeyCode.End);
+
+            if (player.GetButtonDown("Camera") && settings.freeze)
             {
                 PT2.screen_covers.HazeScreen("9999ff", 0.6f, 0f, float.PositiveInfinity);
                 Time.timeScale = 0f;
