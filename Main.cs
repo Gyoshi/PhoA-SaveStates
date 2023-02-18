@@ -97,6 +97,7 @@ namespace SaveStates
                     data.Save();
                     loadAvailable = true; //should be readonly property
 
+                    PT2.sound_g.PlayGlobalCommonSfx(122, 1f, 0.5f, 1);
                     PT2.display_messages.DisplayMessage("Saved to Slot " + currentSlot, DisplayMessagesLogic.MSG_TYPE.GALE_MINUS_STATUS);
                 }
                 // Load
@@ -105,10 +106,12 @@ namespace SaveStates
                 {
                     QuickLoad();
 
+                    PT2.sound_g.PlayGlobalCommonSfx(96, 0.7f, 1.5f, 2);
                     PT2.display_messages.DisplayMessage("Loaded Slot " + currentSlot, DisplayMessagesLogic.MSG_TYPE.GALE_PLUS_STATUS);
                 }
                 if (loadRequested && !loadAvailable)
                 {
+                    PT2.sound_g.PlayGlobalCommonSfx(134, 1f, 1f, 2);
                     PT2.display_messages.DisplayMessage("Slot " + currentSlot + " is empty!", DisplayMessagesLogic.MSG_TYPE.INVENTORY_FULL);
                 }
                 // Swap slots
@@ -116,10 +119,13 @@ namespace SaveStates
                 else if (PT2.director.control.CROUCH_PRESSED || Input.GetKeyDown(KeyCode.PageDown)) { currentSlot++; }
                 else { goto NOSWAP; }
                 SwapSlots();
+                PT2.sound_g.PlayGlobalCommonSfx(124, 1f, 1f, 2);
+                
                 NOSWAP: { };
 
                 PT2.director.control.SilenceAllInputsThisFrame();
             }
+
             if (Main.CAM_HELD && Main.player.GetButtonDown("Alt Tool"))
                 PT2.camera_control.ZoomSimple();
         }
