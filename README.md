@@ -6,7 +6,7 @@ While holding the camera button:
 - Press the right analog stick (while centered) to make a **Quicksave**
 - Press RB (grab button) to **Quickload**
 - Press LT/RT to swap between save **Slots**
-- On keyboard, the following keys also work correspondingly: (Camera+) Home/End, PgUp/PgDn
+- On keyboard, the following keys also work correspondingly: Home/End, PgUp/PgDn (all while holding camera button)
 - Press the Alt Tool button to use the regular camera feature.
 
 You can swap between 15 Quicksave Slots, and 1 Autosave. The save data of each Quicksave Slot is stored as a file in the mod folder.
