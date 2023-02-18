@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using Rewired;
+using Steamworks;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -16,6 +17,7 @@ namespace SaveStates
     {
         public static Dictionary<int, QuickSaveData> slots = new Dictionary<int, QuickSaveData>();
         public static int maxSlot = 16;
+        public static int autoSaveSlot = 16;
 
         public static QuickSaveData data;
         public static string dataPath;
@@ -164,6 +166,15 @@ namespace SaveStates
             PT2.display_messages.DisplayMessage(message, DisplayMessagesLogic.MSG_TYPE.SMALL_ITEM_GET);
             return data;
         }
+
+        public static void Autosave()
+        {
+            QuickSaveData autosaveData = new QuickSaveData();
+            autosaveData.QuickSave();
+            slots[autoSaveSlot] = autosaveData;
+            if (currentSlot == autoSaveSlot)
+                data = autosaveData;
+        }
     }
 
     [HarmonyPatch(typeof(CameraLogic), "ZoomSimple")]
@@ -174,6 +185,15 @@ namespace SaveStates
             if (Main.CAM_HELD && Main.player.GetButtonDown("Alt Tool"))
                 return true;
             return false;
+        }
+    }
+
+    [HarmonyPatch(typeof(FunnelStart), "_EnterDoor")]
+    public class Autosave_Patch
+    {
+        public static void Prefix()
+        {
+            Main.Autosave();
         }
     }
 }
