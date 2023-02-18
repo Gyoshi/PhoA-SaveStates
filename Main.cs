@@ -17,7 +17,7 @@ namespace SaveStates
     {
         public static Dictionary<int, QuickSaveData> slots = new Dictionary<int, QuickSaveData>();
         public static int maxSlot = 16;
-        public static int autoSaveSlot = 0;
+        public static int autosaveSlot = 0;
 
         public static QuickSaveData data;
         public static string dataPath;
@@ -87,7 +87,7 @@ namespace SaveStates
                 // Save
                 if (PT2.director.control.RIGHT_STICK_CLICK && PT2.director.control.IsControlStickDeadZone(0.4f, false) || Input.GetKeyDown(KeyCode.Home))
                 {
-                    if (currentSlot == autoSaveSlot)
+                    if (currentSlot == autosaveSlot)
                     {
                         PT2.sound_g.PlayGlobalCommonSfx(20, 1f, 1f, 2);
                         PT2.display_messages.DisplayMessage("Cannot save to Autosave Slot!", DisplayMessagesLogic.MSG_TYPE.INVENTORY_FULL);
@@ -112,13 +112,13 @@ namespace SaveStates
                     data.QuickLoad();
 
                     PT2.sound_g.PlayGlobalCommonSfx(96, 0.7f, 1.5f, 2);
-                    string message = (currentSlot == autoSaveSlot) ? "Loaded Autosave" : "Loaded Slot " + currentSlot;
+                    string message = (currentSlot == autosaveSlot) ? "Loaded Autosave" : "Loaded Slot " + currentSlot;
                     PT2.display_messages.DisplayMessage(message, DisplayMessagesLogic.MSG_TYPE.GALE_PLUS_STATUS);
                 }
                 if (loadRequested && !data.loadAvailable)
                 {
                     PT2.sound_g.PlayGlobalCommonSfx(134, 1f, 1f, 2);
-                    string message = (currentSlot == autoSaveSlot) ? "Autosave is empty!" : "Slot " + currentSlot + " is empty!";
+                    string message = (currentSlot == autosaveSlot) ? "Autosave is empty!" : "Slot " + currentSlot + " is empty!";
                     PT2.display_messages.DisplayMessage(message, DisplayMessagesLogic.MSG_TYPE.INVENTORY_FULL);
                 }
                 // Swap slots
@@ -165,7 +165,7 @@ namespace SaveStates
 
             string message = "Slot " + slotNumber;
 
-            if (slotNumber == autoSaveSlot)
+            if (slotNumber == autosaveSlot)
                 message = "Autosave";
 
             if (slots.ContainsKey(slotNumber))
@@ -185,8 +185,8 @@ namespace SaveStates
         {
             QuickSaveData autosaveData = new QuickSaveData();
             autosaveData.QuickSave();
-            slots[autoSaveSlot] = autosaveData;
-            if (currentSlot == autoSaveSlot)
+            slots[autosaveSlot] = autosaveData;
+            if (currentSlot == autosaveSlot)
                 data = autosaveData;
         }
     }
