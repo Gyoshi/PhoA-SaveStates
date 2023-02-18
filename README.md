@@ -2,16 +2,15 @@
 Quick save/load for Phoenotopia: Awakening using Unity Mod Manager
 <img src="https://raw.githubusercontent.com/Gyoshi/PhoA-SaveStates/master/Resources/logo.png" alt="Not actual gameplay footage" align="right"/>
 
-Save and load at the click of a button:
+While holding the camera button:
 - Press the right analog stick (while centered) to make a **quicksave**
-- Hold the grab button, then press the camera button to **quickload**
-- Or the Home/End buttons on keyboard
+- Press RB (grab button) to **quickload**
+- Press LT/RT to swap between save **slots**
+- On keyboard, the following keys also work correspondingly: Home/End, PgUp/PgDn
 
-You can swap between 16 quicksave slots by using RShift + left/right arrow keys.
+You can swap between 16 quicksave slots. The save data of each slot is stored as a file in the mod folder.
 
-Your quicksave data is stored as a file in the mod folder. Each slot has a separate file.
-
-*Better controls, more detailed state preservation, and more is still under development.*
+*This tool is still under development.*
 
 ## State preservation
 Everything related to Gail and her progress through the story is preserved across quicksaves and -loads. Most of the state of the npcs and objects in a room is not. More precisely:
