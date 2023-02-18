@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using Rewired;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -17,9 +18,13 @@ namespace SaveStates
         public static string dataPath;
         public static int currentSlot = 1;
         public static bool loadAvailable = false;
+        public static bool CAM_HELD = false;
+        public static bool CAM_RELEASED = false;
 
         public static Harmony harmony;
         public static UnityModManager.ModEntry.ModLogger logger;
+
+        public static Player player;
 
         static void Load(UnityModManager.ModEntry modEntry)
         {
@@ -39,7 +44,7 @@ namespace SaveStates
 
             // TODO: figure this out (easy fix if camera disabled?)
             //modEntry.OnUpdate = OnUpdate;
-            modEntry.OnLateUpdate = OnUpdate;
+            modEntry.OnUpdate = OnUpdate;
             #if DEBUG
             modEntry.OnUnload = Unload;
             #endif
@@ -58,36 +63,45 @@ namespace SaveStates
 
         static void OnUpdate(UnityModManager.ModEntry modEntry, float dt)
         {
-            //Save
-            if (PT2.director.control.RIGHT_STICK_CLICK && PT2.director.control.IsControlStickDeadZone(0.4f, false) || Input.GetKeyDown(KeyCode.Home))
-            {
-                // Do the quicksave
-                QuickSave();
-                QuickSaveData.slots[currentSlot] = data;
+            player = (Player)typeof(ControlAdapter)
+                .GetField("player", BindingFlags.NonPublic | BindingFlags.Instance)
+                .GetValue(PT2.director.control);
+            CAM_RELEASED = CAM_HELD && !player.GetButton("Camera");
+            CAM_HELD = player.GetButton("Camera");
 
-                // Save quicksave data to disk
-                data.Save();
-                loadAvailable = true;
+            if (CAM_HELD)
+            {
 
-                PT2.display_messages.DisplayMessage("Saved to Slot " + currentSlot, DisplayMessagesLogic.MSG_TYPE.GALE_MINUS_STATUS);
-            }
-            //Load
-            bool loadRequested = PT2.director.control.CAM_PRESSED && PT2.director.control.GRAB_HELD || Input.GetKeyDown(KeyCode.End);
-            if (loadRequested && loadAvailable)
-            {
-                QuickLoad();
+                PT2.screen_covers.HazeScreen("9999ff", 0.6f, 0f, float.PositiveInfinity);
+                Time.timeScale = 0f; //on cam down instead?
+                // Save
+                if (PT2.director.control.RIGHT_STICK_CLICK && PT2.director.control.IsControlStickDeadZone(0.4f, false) || Input.GetKeyDown(KeyCode.Home))
+                {
+                    // Do the quicksave
+                    QuickSave();
+                    QuickSaveData.slots[currentSlot] = data;
 
-                PT2.display_messages.DisplayMessage("Loaded Slot " + currentSlot, DisplayMessagesLogic.MSG_TYPE.GALE_PLUS_STATUS);
-            }
-            if (loadRequested && !loadAvailable)
-            {
-                PT2.display_messages.DisplayMessage("Slot " + currentSlot + " is empty!", DisplayMessagesLogic.MSG_TYPE.INVENTORY_FULL);
-            }
-            // Swap slots
-            if (Input.GetKey(KeyCode.RightShift))
-            {
-                if (Input.GetKeyDown(KeyCode.LeftArrow)) { currentSlot--; }
-                else if (Input.GetKeyDown(KeyCode.RightArrow)) { currentSlot++; }
+                    // Save quicksave data to disk
+                    data.Save();
+                    loadAvailable = true;
+
+                    PT2.display_messages.DisplayMessage("Saved to Slot " + currentSlot, DisplayMessagesLogic.MSG_TYPE.GALE_MINUS_STATUS);
+                }
+                // Load
+                bool loadRequested = PT2.director.control.GRAB_PRESSED || Input.GetKeyDown(KeyCode.End);
+                if (loadRequested && loadAvailable)
+                {
+                    QuickLoad();
+
+                    PT2.display_messages.DisplayMessage("Loaded Slot " + currentSlot, DisplayMessagesLogic.MSG_TYPE.GALE_PLUS_STATUS);
+                }
+                if (loadRequested && !loadAvailable)
+                {
+                    PT2.display_messages.DisplayMessage("Slot " + currentSlot + " is empty!", DisplayMessagesLogic.MSG_TYPE.INVENTORY_FULL);
+                }
+                // Swap slots
+                if (PT2.director.control.SPRINT_PRESSED) { currentSlot--; }
+                else if (PT2.director.control.CROUCH_PRESSED) { currentSlot++; }
                 else { goto NOSWAP; }
                 // Adding max because % does negative values wrong
                 currentSlot = (currentSlot + QuickSaveData.maxSlot - 1) % QuickSaveData.maxSlot + 1;
@@ -106,9 +120,16 @@ namespace SaveStates
                     data = new QuickSaveData();
                 }
                 PT2.display_messages.DisplayMessage(message, DisplayMessagesLogic.MSG_TYPE.SMALL_ITEM_GET);
-                
+                NOSWAP: { };
+
+                PT2.director.control.SilenceAllInputsThisFrame();
             }
-            NOSWAP: { };
+            else if (CAM_RELEASED)
+            {
+                PT2.screen_covers.CancelHazeScreen();
+                if (!PT2.game_paused)
+                    Time.timeScale = 1f;
+            }
         }
         private static void QuickSave() // should be instance method
         {
@@ -152,7 +173,9 @@ namespace SaveStates
 
             // From death
             PT2.screen_covers.CancelBlackBars();
-            SpriteRenderer menuGaleSprite = (SpriteRenderer)typeof(ScreenCoversLogic).GetField("_menu_gale_sprite", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(PT2.screen_covers);
+            SpriteRenderer menuGaleSprite = (SpriteRenderer)typeof(ScreenCoversLogic)
+                .GetField("_menu_gale_sprite", BindingFlags.NonPublic | BindingFlags.Instance)
+                .GetValue(PT2.screen_covers);
             menuGaleSprite.gameObject.SetActive(false);
 
             // Load SaveFile data
@@ -200,29 +223,29 @@ namespace SaveStates
         }
         private static void SaveObjectCodes(ref string[] objectCodesArray, string fieldName)
         {
-            HashSet<string> codesSet = (HashSet<string>)typeof(SaveFile).GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Instance).GetValue(PT2.save_file);
+            HashSet<string> codesSet = (HashSet<string>)typeof(SaveFile)
+                .GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Instance)
+                .GetValue(PT2.save_file);
             objectCodesArray = new string[codesSet.Count];
             codesSet.CopyTo(objectCodesArray, 0);
         }
         private static void LoadObjectCodes(string[] objectCodesArray, string fieldName)
         {
             HashSet<string> codesSet = new HashSet<string>(objectCodesArray);
-            typeof(SaveFile).GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Instance).SetValue(PT2.save_file, codesSet);
+            typeof(SaveFile)
+                .GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Instance)
+                .SetValue(PT2.save_file, codesSet);
         }
     }
-    //[HarmonyPatch(typeof(GaleLogicOne), "Update")]
-    //public class GaleLogicOne_Patch
-    //{
-    //    private static ControlAdapter control;
-    //    public static bool Postfix(GaleLogicOne __instance)
-    //    {
-    //        control = Traverse.Create(__instance).Field("_control").GetValue<ControlAdapter>();
-    //        if (control.CAM_PRESSED)
-    //        {
-    //            //UnityModManager.ModEntry.Logger.Log(":o");
-    //            //Traverse.Create(__instance).Method("_IncurLimitBreakCost").GetValue();
-    //        }
-    //        return true;
-    //    }
-    //}
+
+    [HarmonyPatch(typeof(CameraLogic), "ZoomSimple")]
+    public class Zoom_Patch //does nothing with time pause / input silence
+    {
+        public static bool Prefix()
+        {
+            if (Main.CAM_HELD && Main.player.GetButton("Alt Tool"))
+                return true;
+            return false;
+        }
+    }
 }
