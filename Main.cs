@@ -23,6 +23,7 @@ namespace SaveStates
 
         public static Harmony harmony;
         public static UnityModManager.ModEntry.ModLogger logger;
+        public static Settings settings;
 
         public static Player player;
 
@@ -42,10 +43,12 @@ namespace SaveStates
                 data = new QuickSaveData();
             }
 
-            // TODO: figure this out (easy fix if camera disabled?)
-            //modEntry.OnUpdate = OnUpdate;
             modEntry.OnUpdate = OnUpdate;
-            #if DEBUG
+
+            settings = Settings.Load<Settings>(modEntry);
+            modEntry.OnGUI = OnGUI;
+            modEntry.OnSaveGUI = OnSaveGUI;
+#if DEBUG
             modEntry.OnUnload = Unload;
             #endif
             harmony = new Harmony(modEntry.Info.Id);
@@ -69,11 +72,20 @@ namespace SaveStates
             CAM_RELEASED = CAM_HELD && !player.GetButton("Camera");
             CAM_HELD = player.GetButton("Camera");
 
-            if (CAM_HELD)
+            if (PT2.director.control.CAM_PRESSED && settings.freeze)
             {
-
                 PT2.screen_covers.HazeScreen("9999ff", 0.6f, 0f, float.PositiveInfinity);
                 Time.timeScale = 0f; //on cam down instead?
+            }
+            else if (CAM_RELEASED && settings.freeze)
+            {
+                PT2.screen_covers.CancelHazeScreen();
+                if (!PT2.game_paused)
+                    Time.timeScale = 1f;
+            }
+
+            if (CAM_HELD)
+            {
                 // Save
                 if (PT2.director.control.RIGHT_STICK_CLICK && PT2.director.control.IsControlStickDeadZone(0.4f, false) || Input.GetKeyDown(KeyCode.Home))
                 {
@@ -83,7 +95,7 @@ namespace SaveStates
 
                     // Save quicksave data to disk
                     data.Save();
-                    loadAvailable = true;
+                    loadAvailable = true; //should be readonly property
 
                     PT2.display_messages.DisplayMessage("Saved to Slot " + currentSlot, DisplayMessagesLogic.MSG_TYPE.GALE_MINUS_STATUS);
                 }
@@ -103,35 +115,26 @@ namespace SaveStates
                 if (PT2.director.control.SPRINT_PRESSED) { currentSlot--; }
                 else if (PT2.director.control.CROUCH_PRESSED) { currentSlot++; }
                 else { goto NOSWAP; }
-                // Adding max because % does negative values wrong
-                currentSlot = (currentSlot + QuickSaveData.maxSlot - 1) % QuickSaveData.maxSlot + 1;
-
-                string message = "Slot " + currentSlot;
-
-                if (QuickSaveData.slots.ContainsKey(currentSlot))
-                {
-                    loadAvailable = true;
-                    data = QuickSaveData.slots[currentSlot];
-                    message += "<sprite=30>";
-                }
-                else
-                {
-                    loadAvailable = false;
-                    data = new QuickSaveData();
-                }
-                PT2.display_messages.DisplayMessage(message, DisplayMessagesLogic.MSG_TYPE.SMALL_ITEM_GET);
+                SwapSlots();
                 NOSWAP: { };
 
                 PT2.director.control.SilenceAllInputsThisFrame();
             }
-            else if (CAM_RELEASED)
-            {
-                PT2.screen_covers.CancelHazeScreen();
-                if (!PT2.game_paused)
-                    Time.timeScale = 1f;
-            }
+            if (Main.CAM_HELD && Main.player.GetButtonDown("Alt Tool"))
+                PT2.camera_control.ZoomSimple();
         }
-        private static void QuickSave() // should be instance method
+
+        static void OnGUI(UnityModManager.ModEntry modEntry)
+        {
+            settings.Draw(modEntry);
+        }
+
+        static void OnSaveGUI(UnityModManager.ModEntry modEntry)
+        {
+            settings.Save(modEntry);
+        }
+
+        private static void QuickSave() // should be instance method of QuickSaveData
         {
             // Save SaveFile data
             data.saveFileString = PT2.save_file._NS_CompactSaveDataAsString();
@@ -221,6 +224,28 @@ namespace SaveStates
             logger.Log("ロード済み");
             #endif
         }
+
+        private static void SwapSlots()
+        {
+            // Adding max because % does negative values wrong
+            currentSlot = (currentSlot + QuickSaveData.maxSlot - 1) % QuickSaveData.maxSlot + 1;
+
+            string message = "Slot " + currentSlot;
+
+            if (QuickSaveData.slots.ContainsKey(currentSlot))
+            {
+                loadAvailable = true;
+                data = QuickSaveData.slots[currentSlot];
+                message += "<sprite=30>";
+            }
+            else
+            {
+                loadAvailable = false;
+                data = new QuickSaveData();
+            }
+            PT2.display_messages.DisplayMessage(message, DisplayMessagesLogic.MSG_TYPE.SMALL_ITEM_GET);
+        }
+
         private static void SaveObjectCodes(ref string[] objectCodesArray, string fieldName)
         {
             HashSet<string> codesSet = (HashSet<string>)typeof(SaveFile)
@@ -243,7 +268,7 @@ namespace SaveStates
     {
         public static bool Prefix()
         {
-            if (Main.CAM_HELD && Main.player.GetButton("Alt Tool"))
+            if (Main.CAM_HELD && Main.player.GetButtonDown("Alt Tool"))
                 return true;
             return false;
         }
