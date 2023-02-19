@@ -18,6 +18,9 @@
     <Reference Include="Assembly-CSharp-firstpass">
       <HintPath>..\..\Program Files (x86)\Steam\steamapps\common\Phoenotopia Awakening\PhoenotopiaAwakening_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\..\Program Files (x86)\Steam\steamapps\common\Phoenotopia Awakening\PhoenotopiaAwakening_Data\Managed\UnityModManager\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="Rewired_Core">
       <HintPath>..\..\Program Files (x86)\Steam\steamapps\common\Phoenotopia Awakening\PhoenotopiaAwakening_Data\Managed\Rewired_Core.dll</HintPath>
     </Reference>
