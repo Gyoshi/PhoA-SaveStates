@@ -4,6 +4,7 @@ using Steamworks;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using UnityEngine;
 using UnityModManagerNet;
@@ -209,7 +210,7 @@ namespace SaveStates
     {
         public static void Prefix(object room_name)
         {
-            if (!Main.loadRequested && (string)room_name != "limbo")
+            if (!Main.loadRequested && (string)room_name != "limbo" && !PT2.coming_from_opening_menu)
                 Main.Autosave();
         }
     }
