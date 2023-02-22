@@ -42,7 +42,7 @@ namespace SaveStates
             dataPath = Path.Combine(modEntry.Path, "Quick save files");
             Directory.CreateDirectory(dataPath);
             readFiles(dataPath);
-            currentData = GetSlot(ref currentSlot, false); // offending line
+            currentData = GetSlot(ref currentSlot, false);
 
             modEntry.OnUpdate = OnUpdate;
             modEntry.OnGUI = OnGUI;
@@ -51,6 +51,7 @@ namespace SaveStates
             #if DEBUG
             modEntry.OnUnload = Unload;
             #endif
+
             harmony = new Harmony(modEntry.Info.Id);
             harmony.PatchAll();
 
@@ -152,7 +153,8 @@ namespace SaveStates
 
         static bool OnToggle(UnityModManager.ModEntry modEntry, bool active)
         {
-            if (!active) { return Unload(modEntry); }
+            if (active) { Load(modEntry); }
+            else { return Unload(modEntry); }
             return true;
         }
 
