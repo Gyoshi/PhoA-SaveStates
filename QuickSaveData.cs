@@ -186,6 +186,7 @@ namespace SaveStates
             // Load stats
             PT2.gale_interacter.stats = this.galeStats;
             PT2.hud_heart.J_UpdateHealth(this.galeStats.hp, this.galeStats.max_hp, false, false);
+            PT2.hud_heart.ForceCancelBlareSfx();
             PT2.hud_stamina.J_InitializeStaminaHud(this.galeStats.max_stamina); //superfluous after savefile data?
             PT2.hud_stamina.J_SetCurrentStamina(this.galeStats.stamina);
 
