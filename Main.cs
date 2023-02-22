@@ -22,6 +22,7 @@ namespace SaveStates
 
         public static QuickSaveData currentData;
         public static string dataPath;
+        [SaveOnReload]
         public static int currentSlot = 1;
         public static bool CAM_HELD = false;
         public static bool CAM_RELEASED = false;
@@ -36,6 +37,7 @@ namespace SaveStates
         static void Load(UnityModManager.ModEntry modEntry)
         {
             logger = modEntry.Logger;
+            settings = Settings.Load<Settings>(modEntry);
 
             dataPath = Path.Combine(modEntry.Path, "Quick save files");
             Directory.CreateDirectory(dataPath);
@@ -43,10 +45,9 @@ namespace SaveStates
             currentData = GetSlot(ref currentSlot, false); // offending line
 
             modEntry.OnUpdate = OnUpdate;
-
-            settings = Settings.Load<Settings>(modEntry);
             modEntry.OnGUI = OnGUI;
             modEntry.OnSaveGUI = OnSaveGUI;
+            modEntry.OnToggle = OnToggle;
             #if DEBUG
             modEntry.OnUnload = Unload;
             #endif
@@ -147,6 +148,12 @@ namespace SaveStates
         static void OnSaveGUI(UnityModManager.ModEntry modEntry)
         {
             settings.Save(modEntry);
+        }
+
+        static bool OnToggle(UnityModManager.ModEntry modEntry, bool active)
+        {
+            if (!active) { return Unload(modEntry); }
+            return true;
         }
 
         public static void readFiles(string dataPath)
