@@ -149,6 +149,15 @@ namespace SaveStates
             PT2.sound_g.ForceStopOcarina();
             PT2.director.CloseAllDialoguers();
             PT2.gale_interacter.NoInteractionsCurrently();
+            
+            // From opening menu
+            if (LevelBuildLogic.level_name == "game_start")
+            {
+                PT2.coming_from_opening_menu = true;
+                PT2.sound_g.AdjustMusicVolume(null, 0f, 0.5f, false, true);
+                PT2.director.current_opening_menu.GameStart(); // Is this ok?
+                PT2.director.current_opening_menu = null;
+            }
 
             // From death
             PT2.screen_covers.CancelBlackBars();
