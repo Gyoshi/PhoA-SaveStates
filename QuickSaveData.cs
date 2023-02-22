@@ -182,6 +182,7 @@ namespace SaveStates
             WorldMapFoeLogic.X_WHERE_BATTLE_OCCURRED = this.encounterPosition.x;
             WorldMapFoeLogic.Y_WHERE_BATTLE_OCCURRED = this.encounterPosition.y;
             PT2.gale_interacter.ScanForInteractSigns();
+            PT2.gale_script.SendGaleCommand(GALE_CMD.PREVENT_DOOR_UP_SPAM, 0f);
 
             // Load stats
             PT2.gale_interacter.stats = this.galeStats;
