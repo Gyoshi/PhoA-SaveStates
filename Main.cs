@@ -87,58 +87,57 @@ namespace SaveStates
                     Time.timeScale = 1f;
             }
 
-            if (CAM_HELD)
+            if (!CAM_HELD) return;
+
+            // Save
+            if (PT2.director.control.RIGHT_STICK_CLICK && PT2.director.control.IsControlStickDeadZone(0.4f, false) || Input.GetKeyDown(KeyCode.Home))
             {
-                // Save
-                if (PT2.director.control.RIGHT_STICK_CLICK && PT2.director.control.IsControlStickDeadZone(0.4f, false) || Input.GetKeyDown(KeyCode.Home))
+                if (currentSlot == autosaveSlot)
                 {
-                    if (currentSlot == autosaveSlot)
-                    {
-                        PT2.sound_g.PlayGlobalCommonSfx(20, 1f, 1f, 2);
-                        PT2.display_messages.DisplayMessage("Cannot save to Autosave Slot!", DisplayMessagesLogic.MSG_TYPE.INVENTORY_FULL);
-                        goto NOSAVE;
-                    }
-
-                    // Do the quicksave
-                    currentData.QuickSave();
-                    slots[currentSlot] = currentData;
-
-                    // Save quicksave data to disk
-                    currentData.Write(dataPath);
-
-                    PT2.sound_g.PlayGlobalCommonSfx(122, 1f, 0.5f, 1);
-                    PT2.display_messages.DisplayMessage("Saved to Slot " + currentSlot, DisplayMessagesLogic.MSG_TYPE.GALE_MINUS_STATUS);
+                    PT2.sound_g.PlayGlobalCommonSfx(20, 1f, 1f, 2);
+                    PT2.display_messages.DisplayMessage("Cannot save to Autosave Slot!", DisplayMessagesLogic.MSG_TYPE.INVENTORY_FULL);
+                    goto NOSAVE;
                 }
-            NOSAVE: { }
-                // Load
-                if (loadRequested && currentData.loadAvailable)
-                {
-                    currentData.QuickLoad();
 
-                    PT2.sound_g.PlayGlobalCommonSfx(96, 0.7f, 1.5f, 2);
-                    string message = (currentSlot == autosaveSlot) ? "Loaded Autosave" : "Loaded Slot " + currentSlot;
-                    PT2.display_messages.DisplayMessage(message, DisplayMessagesLogic.MSG_TYPE.GALE_PLUS_STATUS);
-                }
-                if (loadRequested && !currentData.loadAvailable)
-                {
-                    PT2.sound_g.PlayGlobalCommonSfx(134, 1f, 1f, 2);
-                    string message = (currentSlot == autosaveSlot) ? "Autosave is empty!" : "Slot " + currentSlot + " is empty!";
-                    PT2.display_messages.DisplayMessage(message, DisplayMessagesLogic.MSG_TYPE.INVENTORY_FULL);
-                }
-                // Swap slots
-                if (PT2.director.control.SPRINT_PRESSED || Input.GetKeyDown(KeyCode.PageUp)) { currentSlot--; }
-                else if (PT2.director.control.CROUCH_PRESSED || Input.GetKeyDown(KeyCode.PageDown)) { currentSlot++; }
-                else { goto NOSWAP; }
-                currentData = GetSlot(ref currentSlot);
-                PT2.sound_g.PlayGlobalCommonSfx(124, 1f, 1f, 2);
+                // Do the quicksave
+                currentData.QuickSave();
+                slots[currentSlot] = currentData;
 
-            NOSWAP: { };
+                // Save quicksave data to disk
+                currentData.Write(dataPath);
 
-                PT2.director.control.SilenceAllInputsThisFrame();
+                PT2.sound_g.PlayGlobalCommonSfx(122, 1f, 0.5f, 1);
+                PT2.display_messages.DisplayMessage("Saved to Slot " + currentSlot, DisplayMessagesLogic.MSG_TYPE.GALE_MINUS_STATUS);
             }
+        NOSAVE: { }
+            // Load
+            if (loadRequested && currentData.loadAvailable)
+            {
+                currentData.QuickLoad();
 
-            if (Main.CAM_HELD && Main.player.GetButtonDown("Alt Tool"))
+                PT2.sound_g.PlayGlobalCommonSfx(96, 0.7f, 1.5f, 2);
+                string message = (currentSlot == autosaveSlot) ? "Loaded Autosave" : "Loaded Slot " + currentSlot;
+                PT2.display_messages.DisplayMessage(message, DisplayMessagesLogic.MSG_TYPE.GALE_PLUS_STATUS);
+            }
+            if (loadRequested && !currentData.loadAvailable)
+            {
+                PT2.sound_g.PlayGlobalCommonSfx(134, 1f, 1f, 2);
+                string message = (currentSlot == autosaveSlot) ? "Autosave is empty!" : "Slot " + currentSlot + " is empty!";
+                PT2.display_messages.DisplayMessage(message, DisplayMessagesLogic.MSG_TYPE.INVENTORY_FULL);
+            }
+            // Swap slots
+            if (PT2.director.control.SPRINT_PRESSED || Input.GetKeyDown(KeyCode.PageUp)) { currentSlot--; }
+            else if (PT2.director.control.CROUCH_PRESSED || Input.GetKeyDown(KeyCode.PageDown)) { currentSlot++; }
+            else { goto NOSWAP; }
+            currentData = GetSlot(ref currentSlot);
+            PT2.sound_g.PlayGlobalCommonSfx(124, 1f, 1f, 2);
+
+        NOSWAP: { };
+        
+            if (player.GetButtonDown("Alt Tool"))
                 PT2.camera_control.ZoomSimple();
+
+            PT2.director.control.SilenceAllInputsThisFrame();
         }
 
         static void OnGUI(UnityModManager.ModEntry modEntry)
