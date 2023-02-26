@@ -75,16 +75,19 @@ namespace SaveStates
 
             loadRequested = PT2.director.control.GRAB_PRESSED || Input.GetKeyDown(KeyCode.End);
 
-            if (player.GetButtonDown("Camera") && settings.freeze)
+            if (settings.freeze)
             {
-                PT2.screen_covers.HazeScreen("9999ff", 0.6f, 0f, float.PositiveInfinity);
-                Time.timeScale = 0f;
-            }
-            else if (CAM_RELEASED && settings.freeze)
-            {
-                PT2.screen_covers.CancelHazeScreen();
-                if (!PT2.game_paused)
-                    Time.timeScale = 1f;
+                if (player.GetButtonDown("Camera"))
+                {
+                    PT2.screen_covers.HazeScreen("9999ff", 0.6f, 0f, float.PositiveInfinity);
+                    Time.timeScale = 0f;
+                }
+                else if (CAM_RELEASED)
+                {
+                    PT2.screen_covers.CancelHazeScreen();
+                    if (!PT2.game_paused)
+                        Time.timeScale = 1f;
+                }
             }
 
             if (!CAM_HELD) return;
