@@ -34,12 +34,17 @@ Does not currently save
 - Pause/Inv menu
 - Cutscene/dialogue progress
 
+## From Title Screen/Main Menu
+You can also quickload from the opening menu. Beware that it defaults to the first regular save file, so if you do a regular save after quickloading from the opening menu, it will overwrite whatever was in the first save file.
+
 ## Installation
 Requires [Unity Mod Manager](https://www.nexusmods.com/site/mods/21/). You just need the `PhoA-SaveStates.zip` file [(which you can download here)](https://github.com/Gyoshi/PhoA-SaveStates/releases/latest), and then follow the mod installation instructions for Unity Mod Manager.
 
 ## Known Issues
-- Currently does not work from the title screen or main menu. First load into a save file before quickloading to avoid bugging the game out.
-- Quickloading will fail if you do it during a level transition, but you can just quickload again.
+- Quickloading will fail if you do it during a level transition (or while dying), but you can just quickload again.
+- Doesn't properly override cutscenes that move Gail or the camera.
+- Sneak attacks might be less reliable after quickloading.
+- The Boss health bar might not display correctly after quickloading.
 
 ---
 Feel free to @Gyoshi on the Discord [Phoenotopia Fan Server](https://discord.gg/Swd6zcTCQZ) for whatever
