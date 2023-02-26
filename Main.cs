@@ -215,6 +215,17 @@ namespace SaveStates
         }
     }
 
+    [HarmonyPatch(typeof(DirectorLogic), "_OtherDirectorDuties")]
+    public class Pause_Patch
+    {
+        public static bool Prefix()
+        {
+            if (Main.CAM_HELD && (PT2.director.control.START_PRESSED || PT2.director.control.SELECT_PRESSED))
+                return false;
+            return true;
+        }
+    }
+
     [HarmonyPatch(typeof(PT2), "LoadLevel")]
     public static class LoadLevel_Patch
     {
