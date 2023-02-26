@@ -17,7 +17,7 @@ namespace SaveStates
     static class Main
     {
         public static Dictionary<int, QuickSaveData> slots = new Dictionary<int, QuickSaveData>();
-        public static int maxSlot = 16;
+        public static int maxSlot = 100;
         public static int autosaveSlot = 0;
 
         public static QuickSaveData currentData;
@@ -134,7 +134,7 @@ namespace SaveStates
 
         NOSWAP: { };
         
-            if (player.GetButtonDown("Alt Tool"))
+            if (PT2.director.control.ALT_TOOL_PRESSED)
                 PT2.camera_control.ZoomSimple();
 
             PT2.director.control.SilenceAllInputsThisFrame();
