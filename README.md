@@ -2,14 +2,18 @@
 Quick save/load for Phoenotopia: Awakening using Unity Mod Manager
 <img src="https://raw.githubusercontent.com/Gyoshi/PhoA-SaveStates/master/Resources/logo.png" alt="Not actual gameplay footage" align="right"/>
 
-While holding the camera button:
+***While holding the camera button:***
 - Press the right analog stick (while centered) to make a **Quicksave**
-- Press RB (grab button) to **Quickload**
+- Press RB (Grab) to **Quickload**
 - Press LT/RT to swap between save **Slots**
-- On keyboard, the following keys also work correspondingly: Home/End, PgUp/PgDn (all while holding camera button)
-- Press the Alt Tool button to use the regular camera feature.
+- Press Start (Inventory) to skip ahead by **10 Slots**
+- Press Select (Options) to jump to the **Autosave Slot** (0)
+- Press the Alt Tool button to use the regular camera zoom feature
+- On keyboard, the following keys also work (while holding camera): 
+	- Home/End to **Quicksave**/**Quickload**
+	- PgUp/PgDn to swap between **Slots**
 
-You can swap between 15 Quicksave Slots, and 1 Autosave. The save data of each Quicksave Slot is stored as a file in the mod folder.
+You can swap between 99 Quicksave Slots, and 1 Autosave. The save data of each Quicksave Slot is stored as a file in the mod folder.
 
 *This tool is still under development.*
 
@@ -45,6 +49,7 @@ Requires [Unity Mod Manager](https://www.nexusmods.com/site/mods/21/). You just 
 - Doesn't properly override cutscenes that move Gail or the camera.
 - Sneak attacks might be less reliable after quickloading.
 - The Boss health bar might not display correctly after quickloading.
+- Background visuals and music don't update when quickloading some rooms.
 
 ---
 Feel free to @Gyoshi on the Discord [Phoenotopia Fan Server](https://discord.gg/Swd6zcTCQZ) for whatever
