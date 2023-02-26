@@ -131,7 +131,7 @@ namespace SaveStates
             // Swap slots
             if (PT2.director.control.SPRINT_PRESSED || Input.GetKeyDown(KeyCode.PageUp)) { currentSlot--; }
             else if (PT2.director.control.CROUCH_PRESSED || Input.GetKeyDown(KeyCode.PageDown)) { currentSlot++; }
-            else if (player.GetButtonDown("Inventory")) { currentSlot += 10; }
+            else if (PT2.director.control.START_PRESSED) { currentSlot += 10; }
             else if (PT2.director.control.SELECT_PRESSED) { currentSlot = autosaveSlot; }
             else { goto NOSWAP; }
             currentData = GetSlot(ref currentSlot);
