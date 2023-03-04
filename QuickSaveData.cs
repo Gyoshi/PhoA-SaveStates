@@ -199,6 +199,8 @@ namespace SaveStates
             PT2.hud_heart.ForceCancelBlareSfx();
             PT2.hud_stamina.J_InitializeStaminaHud(this.galeStats.max_stamina); //superfluous after savefile data?
             PT2.hud_stamina.J_SetCurrentStamina(this.galeStats.stamina);
+            if (this.galeStats.attack_buff > 0f)
+                PT2.gale_script.SendGaleCommand(GALE_CMD.APPLY_ATK_BUFF, 0f);
 
             // Load Gale Logic
             if (PT2.gale_script is GaleLogicOne galeLogicOne)
