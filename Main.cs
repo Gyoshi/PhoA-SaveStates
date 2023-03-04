@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Emit;
 using UnityEngine;
 using UnityModManagerNet;
 
@@ -33,6 +34,7 @@ namespace SaveStates
         public static Settings settings;
 
         public static Player player;
+        public static LTDescr gameOverTween;
 
         static void Load(UnityModManager.ModEntry modEntry)
         {
@@ -238,4 +240,20 @@ namespace SaveStates
                 Main.Autosave();
         }
     }
+
+    [HarmonyPatch(typeof(SaveFile), "GoToGameOverScreen")]
+    public static class GameOver_Patch
+    {
+        static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+        {
+            foreach (var instruction in instructions)
+            {
+                if (instruction.opcode == OpCodes.Pop)
+                    yield return CodeInstruction.StoreField(typeof(Main), "gameOverTween");
+                else
+                    yield return instruction;
+            }
+        }
+    }
+
 }

@@ -151,9 +151,10 @@ namespace SaveStates
             if (PT2.level_load_in_progress)
             {
                 PT2.level_load_in_progress = false;
-                //LeanTween.cancel(PT2.tv_hud.gameObject);
-                LeanTween.cancelAll();
+                LeanTween.cancel(PT2.tv_hud.gameObject);
             }
+            if (Main.gameOverTween != null)
+                LeanTween.cancel(Main.gameOverTween.id);
             
             // From opening menu
             if (LevelBuildLogic.level_name == "game_start")
