@@ -45,7 +45,6 @@ You can also quickload from the opening menu. Beware that it defaults to the fir
 Requires [Unity Mod Manager](https://www.nexusmods.com/site/mods/21/). You just need the `PhoA-SaveStates.zip` file [(which you can download here)](https://github.com/Gyoshi/PhoA-SaveStates/releases/latest), and then follow the mod installation instructions for Unity Mod Manager.
 
 ## Known Issues
-- Quickloading will fail if you do it during a level transition (or while dying), but you can just quickload again.
 - Doesn't properly override cutscenes that move Gail or the camera.
 - Sneak attacks might be less reliable after quickloading.
 - The Boss health bar might not display correctly after quickloading.
