@@ -145,6 +145,7 @@ namespace SaveStates
         public void QuickLoad()
         {
             // Clear stuff like PT2.Initialize()
+            PT2.item_gen.RemoveAllDisplayNumbersAndSymbols();
             PT2.sound_g.ForceStopOcarina();
             PT2.director.CloseAllDialoguers();
             PT2.gale_interacter.NoInteractionsCurrently();
