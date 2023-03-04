@@ -26,7 +26,7 @@ Everything related to Gail and her progress through the story is preserved acros
 This utility saves and loads
 - Location
 - Inventory
-- Health/energy state
+- Health/energy state (including buuffs)
 - Game state that is transferred across normal saves (progression flags, chrysalis locations, etc.)
 - State of doors, boxes
 
