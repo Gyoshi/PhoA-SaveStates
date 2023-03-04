@@ -145,10 +145,15 @@ namespace SaveStates
         public void QuickLoad()
         {
             // Clear stuff like PT2.Initialize()
-            //PT2.level_load_in_progress = false;
             PT2.sound_g.ForceStopOcarina();
             PT2.director.CloseAllDialoguers();
             PT2.gale_interacter.NoInteractionsCurrently();
+            if (PT2.level_load_in_progress)
+            {
+                PT2.level_load_in_progress = false;
+                //LeanTween.cancel(PT2.tv_hud.gameObject);
+                LeanTween.cancelAll();
+            }
             
             // From opening menu
             if (LevelBuildLogic.level_name == "game_start")
