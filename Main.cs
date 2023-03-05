@@ -61,7 +61,7 @@ namespace SaveStates
         #if DEBUG
         static bool Unload(UnityModManager.ModEntry modEntry)
         {
-            harmony.UnpatchAll();
+            harmony.UnpatchAll(modEntry.Info.Id);
 
             return true;
         }
