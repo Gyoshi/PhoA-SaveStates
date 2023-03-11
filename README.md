@@ -17,7 +17,7 @@ You can swap between 99 Quicksave Slots, and 1 Autosave. The save data of each Q
 
 *This tool is still under development.*
 
-下部に日本語であります。
+下に日本語でもあります。
 
 ## Autosaving
 A Quicksave will automatically made each time you move between levels. The Autosave Slot is accessible before Slot 1.
@@ -100,7 +100,7 @@ source code: https://github.com/Gyoshi/PhoA-SaveStates
 - メニュー状態
 - カットシーン/ダイアログの進行
 
-# タイトル画面/メインメニューから
+## タイトル画面/メインメニューから
 オープニングメニューからクイックロードすることもできます。ただし、デフォルトでい一位のセーブファイルに保存されるので、オープニングメニューからクイックロードした後に通常の保存を行うと、最初に保存したファイルにあったものが上書きされることに注意を。
 
 ## インストール
