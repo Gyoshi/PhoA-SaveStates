@@ -234,9 +234,15 @@ namespace SaveStates
     [HarmonyPatch(typeof(PT2), "LoadLevel")]
     public static class LoadLevel_Patch
     {
+        static FieldInfo roomToLoadField = AccessTools.Field(typeof(PT2), "_room_to_load");
         public static void Prefix(object room_name)
         {
-            if (!Main.loadRequested && (string)room_name != "limbo" && !PT2.coming_from_opening_menu)
+            if (
+                !Main.loadRequested && // Not a quickload
+                !PT2.coming_from_opening_menu && // Not a normal load
+                (string)room_name != "limbo" && // Not a death
+                (string)roomToLoadField.GetValue(null) != "limbo" // Not a load from death
+            )
                 Main.Autosave();
         }
     }
