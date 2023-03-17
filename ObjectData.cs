@@ -6,15 +6,16 @@ namespace SaveStates
 {
     public class BoxData
     {
-        public Vector3 position;
+        public Vector3 position = Vector3.zero;
         
-        public BoxLogic.WHAT what;
-        public string _object_code;
-        public string _destroyed_GIS;
+        public BoxLogic.WHAT what = BoxLogic.WHAT.NONE;
+        public string _object_code = "";
+        public string _destroyed_GIS = "";
         public bool use_all_bright = false;
 
         public int hp = 0;
 
+        public BoxData() { }
         public BoxData(BoxLogic obj)
         {
             position = obj._transform.position;
