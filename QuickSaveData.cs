@@ -1,4 +1,5 @@
-﻿using System;
+﻿using TinyJSON;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -6,9 +7,9 @@ using UnityEngine;
 
 namespace SaveStates
 {
-    [Serializable]
     public class QuickSaveData
     {
+        public BoxData[] liftables = { };
         // Data --
         public string saveFileString = null;
         public string[] objectCodes = { };
@@ -21,15 +22,7 @@ namespace SaveStates
         public int camera = -1;
         public bool mapMode = false;
 
-        [NonSerialized]
         public GaleStats galeStats = new GaleStats();
-        public float _lift_power = 4f;
-        public int _hp;
-        public int _max_hp;
-        public float _stamina;
-        public float _max_stamina;
-        public float _stamina_buff;
-        public float _attack_buff;
 
         public float staminaStun = 0f;
         public bool grounded = false;
@@ -52,8 +45,7 @@ namespace SaveStates
             }
             string filename = getSaveFilename(dataPath);
 
-            this.UpdateFields();
-            string jsonString = JsonUtility.ToJson(this, true);
+            string jsonString = JSON.Dump(this, EncodeOptions.PrettyPrint);
             File.WriteAllText(filename, jsonString);
         }
 
@@ -64,14 +56,14 @@ namespace SaveStates
             try
             {
                 string fileContents = File.ReadAllText(filename);
-                data = JsonUtility.FromJson<QuickSaveData>(fileContents);
+                data = JSON.Load(fileContents).Make<QuickSaveData>();
+                
             }
             catch (Exception e)
             {
                 Main.logger.Log("Failed to read savedata at slot " + Main.currentSlot + ". Remove the potentially corrupted savedata file from the mod folder if you wish to continue on a blank slate.");
                 throw e;
             }
-            data.UpdateStats();
             data._loadAvailable = true;
             return data;
         }
@@ -86,26 +78,6 @@ namespace SaveStates
             filename = char.ToUpper(filename[0]) + filename.Substring(1);
             filename = Main.currentSlot.ToString("00") + "_" + filename + ".json";
             return Path.Combine(dataPath, filename);
-        }
-        private void UpdateStats()
-        {
-            this.galeStats.lift_power = _lift_power;
-            this.galeStats.hp = _hp;
-            this.galeStats.max_hp = _max_hp;
-            this.galeStats.stamina = _stamina;
-            this.galeStats.max_stamina = _max_stamina;
-            this.galeStats.stamina_buff = _stamina_buff;
-            this.galeStats.attack_buff = _attack_buff;
-        }
-        private void UpdateFields()
-        {
-            this._lift_power = galeStats.lift_power;
-            this._hp = galeStats.hp;
-            this._max_hp = galeStats.max_hp;
-            this._stamina = galeStats.stamina;
-            this._max_stamina = galeStats.max_stamina;
-            this._stamina_buff = galeStats.stamina_buff;
-            this._attack_buff = galeStats.attack_buff;
         }
         public void QuickSave() 
         {

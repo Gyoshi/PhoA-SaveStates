@@ -1,10 +1,13 @@
 ﻿using HarmonyLib;
 using Newtonsoft.Json;
 using Rewired;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Reflection.Emit;
+using TinyJson;
+using TinyJSON;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityModManagerNet;
@@ -55,9 +58,6 @@ namespace SaveStates
 
             harmony = new Harmony(modEntry.Info.Id);
             harmony.PatchAll();
-
-            string jsonData = JsonConvert.SerializeObject(new BoxData());
-            logger.Log(jsonData);
 
         }
         #if DEBUG
@@ -145,6 +145,18 @@ namespace SaveStates
         
             if (PT2.director.control.ALT_TOOL_PRESSED)
                 PT2.camera_control.ZoomSimple();
+
+            if (Main.CAM_HELD && Main.player.GetButtonDown("Tool"))
+            {
+                var testData = new QuickSaveData();
+                BoxLogic[] liftables = UnityEngine.Object.FindObjectsOfType<BoxLogic>();
+                testData.liftables = Array.ConvertAll<BoxLogic, BoxData>(liftables, item => new BoxData(item));
+
+                string jsonData = JSON.Dump(testData, EncodeOptions.PrettyPrint);
+                logger.Log(jsonData);
+
+                //PrintBoxes();
+            }
 
             PT2.director.control.SilenceAllInputsThisFrame();
         }
@@ -240,7 +252,8 @@ namespace SaveStates
             // Loop through each instance and print their position
             foreach (BoxLogic liftable in liftables)
             {
-                string jsonData = JsonUtility.ToJson(new BoxData(liftable), true);
+                //string jsonData = JsonUtility.ToJson(new BoxData(liftable), true);
+                string jsonData = TinyJSON.JSON.Dump(new BoxData(liftable));
                 logger.Log(jsonData);
             }
         }

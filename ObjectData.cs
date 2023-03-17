@@ -12,6 +12,7 @@ namespace SaveStates
 
     public class BoxData : ObjectData
     {
+        // hp
         public BoxData() : base() { }
         public BoxData(BoxLogic obj)
         {
