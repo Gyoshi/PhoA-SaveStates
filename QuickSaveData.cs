@@ -193,6 +193,8 @@ namespace SaveStates
             }
 
             // Load Liftables
+            foreach (var box in UnityEngine.Object.FindObjectsOfType<BoxLogic>())
+                box.gameObject.SetActive(false);
             PT2.level_builder.liftable_prefab.RecycleAll<BoxLogic>();
             foreach (BoxData boxData in liftables)
             {
