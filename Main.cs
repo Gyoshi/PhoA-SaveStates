@@ -1,5 +1,4 @@
 ﻿using HarmonyLib;
-using Newtonsoft.Json;
 using Rewired;
 using System;
 using System.Collections.Generic;
@@ -148,14 +147,8 @@ namespace SaveStates
 
             if (Main.CAM_HELD && Main.player.GetButtonDown("Tool"))
             {
-                var testData = new QuickSaveData();
-                BoxLogic[] liftables = UnityEngine.Object.FindObjectsOfType<BoxLogic>();
-                testData.liftables = Array.ConvertAll<BoxLogic, BoxData>(liftables, item => new BoxData(item));
-
-                string jsonData = JSON.Dump(testData, EncodeOptions.PrettyPrint);
+                string jsonData = JSON.Dump(currentData, EncodeOptions.PrettyPrint);
                 logger.Log(jsonData);
-
-                //PrintBoxes();
             }
 
             PT2.director.control.SilenceAllInputsThisFrame();
@@ -220,42 +213,6 @@ namespace SaveStates
             slots[autosaveSlot] = autosaveData;
             if (currentSlot == autosaveSlot)
                 currentData = autosaveData;
-        }
-
-        private static void PrintAllGameObjects()
-        {
-            // Get an array of all active GameObjects in the scene
-            GameObject[] activeObjects = SceneManager.GetActiveScene().GetRootGameObjects();
-
-            // Loop through each active GameObject and print its name
-            foreach (GameObject obj in activeObjects)
-            {
-                // Check that the object is not part of a Prefab instance in the scene
-                if (obj.transform.parent == null)
-                {
-                    logger.Log("Active GameObject: " + obj.name);
-                }
-            }
-        }
-
-        private static void PrintBoxes()
-        {
-            // Get all instances of the Liftable(Clone) GameObject
-            BoxLogic[] liftables = UnityEngine.Object.FindObjectsOfType<BoxLogic>();
-
-            // Loop through each instance and set their position
-            foreach (BoxLogic liftable in liftables)
-            {
-                //liftable.transform.position = new Vector3(0, 0, 0); // Replace with the desired position
-            }
-
-            // Loop through each instance and print their position
-            foreach (BoxLogic liftable in liftables)
-            {
-                //string jsonData = JsonUtility.ToJson(new BoxData(liftable), true);
-                string jsonData = TinyJSON.JSON.Dump(new BoxData(liftable));
-                logger.Log(jsonData);
-            }
         }
     }
 

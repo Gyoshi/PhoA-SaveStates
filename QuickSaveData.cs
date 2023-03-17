@@ -4,12 +4,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using UnityEngine;
+using System.Linq;
 
 namespace SaveStates
 {
     public class QuickSaveData
     {
-        public BoxData[] liftables = { };
         // Data --
         public string saveFileString = null;
         public string[] objectCodes = { };
@@ -26,6 +26,8 @@ namespace SaveStates
 
         public float staminaStun = 0f;
         public bool grounded = false;
+
+        public BoxData[] liftables = { };
         // End Data --
 
         private bool _loadAvailable = false;
@@ -61,7 +63,7 @@ namespace SaveStates
             }
             catch (Exception e)
             {
-                Main.logger.Log("Failed to read savedata at slot " + Main.currentSlot + ". Remove the potentially corrupted savedata file from the mod folder if you wish to continue on a blank slate.");
+                Main.logger.Log("Failed to read savedata at " + filename + ". Remove the potentially corrupted savedata file from the mod folder if you wish to continue on a blank slate.");
                 throw e;
             }
             data._loadAvailable = true;
@@ -109,6 +111,10 @@ namespace SaveStates
                 this.staminaStun = galeLogicOne.stamina_stun;
                 this.grounded = galeLogicOne._mover2.collision_info.below;
             }
+
+            // Save Liftables
+            BoxLogic[] liftableObjects = UnityEngine.Object.FindObjectsOfType<BoxLogic>();
+            this.liftables = Array.ConvertAll<BoxLogic, BoxData>(liftableObjects, item => new BoxData(item));
 
             this._loadAvailable = true;
         }
@@ -185,6 +191,11 @@ namespace SaveStates
                 galeLogicOne.stamina_stun = this.staminaStun;
                 galeLogicOne._mover2.collision_info.below = this.grounded;
             }
+
+            // Load Liftables
+            PT2.level_builder.liftable_prefab.RecycleAll<BoxLogic>();
+            foreach (BoxData boxData in liftables)
+                boxData.Spawn();
         }
 
         private static void SaveObjectCodes(ref string[] objectCodesArray, string fieldName)
