@@ -143,10 +143,26 @@ namespace SaveStates
         public void QuickLoad()
         {
             // Clear stuff like PT2.Initialize()
-            //PT2.level_load_in_progress = false;
+            PT2.item_gen.RemoveAllDisplayNumbersAndSymbols();
             PT2.sound_g.ForceStopOcarina();
             PT2.director.CloseAllDialoguers();
             PT2.gale_interacter.NoInteractionsCurrently();
+            if (PT2.level_load_in_progress)
+            {
+                PT2.level_load_in_progress = false;
+                LeanTween.cancel(PT2.tv_hud.gameObject);
+            }
+            if (Main.gameOverTween != null)
+                LeanTween.cancel(Main.gameOverTween.id);
+            
+            // From opening menu
+            if (LevelBuildLogic.level_name == "game_start")
+            {
+                PT2.coming_from_opening_menu = true;
+                PT2.sound_g.AdjustMusicVolume(null, 0f, 0.5f, false, true);
+                PT2.director.current_opening_menu.GameStart(); // Is this ok?
+                PT2.director.current_opening_menu = null;
+            }
 
             // From death
             PT2.screen_covers.CancelBlackBars();
@@ -180,12 +196,16 @@ namespace SaveStates
             WorldMapFoeLogic.X_WHERE_BATTLE_OCCURRED = this.encounterPosition.x;
             WorldMapFoeLogic.Y_WHERE_BATTLE_OCCURRED = this.encounterPosition.y;
             PT2.gale_interacter.ScanForInteractSigns();
+            PT2.gale_script.SendGaleCommand(GALE_CMD.PREVENT_DOOR_UP_SPAM, 0f);
 
             // Load stats
             PT2.gale_interacter.stats = this.galeStats;
             PT2.hud_heart.J_UpdateHealth(this.galeStats.hp, this.galeStats.max_hp, false, false);
+            PT2.hud_heart.ForceCancelBlareSfx();
             PT2.hud_stamina.J_InitializeStaminaHud(this.galeStats.max_stamina); //superfluous after savefile data?
             PT2.hud_stamina.J_SetCurrentStamina(this.galeStats.stamina);
+            if (this.galeStats.attack_buff > 0f)
+                PT2.gale_script.SendGaleCommand(GALE_CMD.APPLY_ATK_BUFF, 0f);
 
             // Load Gale Logic
             if (PT2.gale_script is GaleLogicOne galeLogicOne)
