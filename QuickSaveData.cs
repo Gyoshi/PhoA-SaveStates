@@ -202,6 +202,9 @@ namespace SaveStates
                 if (boxData.what == BoxLogic.WHAT.P1_GALE_BOMB)
                     gameObject.GetComponent<Rigidbody2D>().isKinematic = false;
             }
+
+            // Post-Load clearing
+            LevelBuildLogic.time_level_loaded = 0f;
         }
 
         private static void SaveObjectCodes(ref string[] objectCodesArray, string fieldName)
