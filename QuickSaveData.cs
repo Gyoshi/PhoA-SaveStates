@@ -58,8 +58,20 @@ namespace SaveStates
             try
             {
                 string fileContents = File.ReadAllText(filename);
-                data = JSON.Load(fileContents).Make<QuickSaveData>();
-                
+                var dict = JSON.Load(fileContents) as ProxyObject;
+                data = dict.Make<QuickSaveData>();
+
+                // Backwards compatibility
+                if (dict.Keys.Contains("_hp"))
+                {
+                    data.galeStats.lift_power = dict["_lift_power"];
+                    data.galeStats.hp = dict["_hp"];
+                    data.galeStats.max_hp = dict["_max_hp"];
+                    data.galeStats.stamina = dict["_stamina"];
+                    data.galeStats.max_stamina = dict["_max_stamina"];
+                    data.galeStats.stamina_buff = dict["_stamina_buff"];
+                    data.galeStats.attack_buff = dict["_attack_buff"];
+                }
             }
             catch (Exception e)
             {
