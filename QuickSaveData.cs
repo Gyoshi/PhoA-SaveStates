@@ -176,15 +176,10 @@ namespace SaveStates
             LoadObjectCodes(this.extremelyPersistentObjectCodes, "_xtreme_object_codes");
 
             // Load room
-            PT2.LoadLevel(this.room, this.doorId, Vector3.zero, false, 0f, false, true);
             if (this.mapMode)
-            {
                 PT2.gale_script.SetGaleModeOnLevelLoad(GALE_MODE.MAP_MODE);
-            }
             else
-            {
                 PT2.gale_script.SetGaleModeOnLevelLoad(GALE_MODE.DEFAULT);
-            }
             PT2.gale_script.SendGaleCommand(GALE_CMD.SET_GALE_MODE);
             PT2.gale_script.SendGaleCommand(GALE_CMD.RESET); //idk what this does but it removes at least 1 weird bug so
 

@@ -242,12 +242,18 @@ namespace SaveStates
     public static class LoadLevel_Patch
     {
         static FieldInfo roomToLoadField = AccessTools.Field(typeof(PT2), "_room_to_load");
-        public static void Prefix(object room_name)
+        public static void Prefix(string room_name, ref int end_door_id, ref float transition_time, ref bool skip_fade_to_black)
         {
+            if (Main.loadRequested)
+            {
+                end_door_id = Main.currentData.doorId;
+                transition_time = 0f;
+                skip_fade_to_black = true;
+            }
             if (
                 !Main.loadRequested && // Not a quickload
                 !PT2.coming_from_opening_menu && // Not a normal load
-                (string)room_name != "limbo" && // Not a death
+                room_name != "limbo" && // Not a death
                 (string)roomToLoadField.GetValue(null) != "limbo" // Not a load from death
             )
                 Main.Autosave();
