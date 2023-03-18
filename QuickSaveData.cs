@@ -5,6 +5,7 @@ using System.IO;
 using System.Reflection;
 using UnityEngine;
 using System.Linq;
+using HarmonyLib;
 
 namespace SaveStates
 {
@@ -136,6 +137,13 @@ namespace SaveStates
             PT2.item_gen.RemoveAllDisplayNumbersAndSymbols();
             PT2.sound_g.ForceStopOcarina();
             PT2.director.CloseAllDialoguers();
+
+            foreach (var cam in UnityEngine.Object.FindObjectsOfType<SA_ControlCameraLogic>())
+                AccessTools.Field(typeof(SA_ControlCameraLogic), "_sa_status").SetValue(cam, ScriptActionStatus.FINISHED);
+            foreach (var mover in UnityEngine.Object.FindObjectsOfType<SA_MoveNpcLogic>())
+                AccessTools.Field(typeof(SA_MoveNpcLogic), "_sa_status").SetValue(mover, ScriptActionStatus.FINISHED);
+            PT2.director.AlertNonBlockingActionFinished();
+            
             PT2.gale_interacter.NoInteractionsCurrently();
             if (PT2.level_load_in_progress)
             {
