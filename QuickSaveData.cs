@@ -170,10 +170,10 @@ namespace SaveStates
             menuGaleSprite.gameObject.SetActive(false);
 
             // Load SaveFile data
-            PT2.save_file._NS_ProcessSaveDataString(this.saveFileString); // also calls LoadLevel :/
             LoadObjectCodes(this.objectCodes, "_object_codes");
             LoadObjectCodes(this.persistentObjectCodes, "_persistent_object_codes");
             LoadObjectCodes(this.extremelyPersistentObjectCodes, "_xtreme_object_codes");
+            PT2.save_file._NS_ProcessSaveDataString(this.saveFileString); // also calls LoadLevel :/
 
             // Load room
             if (this.mapMode)
