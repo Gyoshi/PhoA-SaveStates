@@ -36,6 +36,11 @@ namespace SaveStates
         public static Player player;
         public static LTDescr gameOverTween;
 
+        private static bool holdPrev;
+        private static bool holdNext;
+        private static bool holdSkip;
+        private static float holdTimer;
+
         static void Load(UnityModManager.ModEntry modEntry)
         {
             logger = modEntry.Logger;
@@ -131,9 +136,20 @@ namespace SaveStates
                 PT2.display_messages.DisplayMessage(message, DisplayMessagesLogic.MSG_TYPE.INVENTORY_FULL);
             }
             // Swap slots
-            if (PT2.director.control.SPRINT_PRESSED || Input.GetKeyDown(KeyCode.PageUp)) { currentSlot--; }
-            else if (PT2.director.control.CROUCH_PRESSED || Input.GetKeyDown(KeyCode.PageDown)) { currentSlot++; }
-            else if (PT2.director.control.START_PRESSED) { currentSlot += 10; }
+            if (holdTimer + 0.15f < Time.realtimeSinceStartup)
+            {
+                holdPrev = player.GetButtonTimedPress("Sprint", 0.3f);
+                holdNext = player.GetButtonTimedPress("Crouch", 0.3f);
+                holdSkip = player.GetButtonTimedPress("Inventory", 0.3f);
+                holdTimer = Time.realtimeSinceStartup;
+            }
+            else
+            {
+                holdNext = holdPrev = holdSkip = false;
+            }
+            if (PT2.director.control.SPRINT_PRESSED || Input.GetKeyDown(KeyCode.PageUp) || holdPrev) { currentSlot--; }
+            else if (PT2.director.control.CROUCH_PRESSED || Input.GetKeyDown(KeyCode.PageDown) || holdNext) { currentSlot++; }
+            else if (PT2.director.control.START_PRESSED || holdSkip) { currentSlot += 10; }
             else if (PT2.director.control.SELECT_PRESSED) { currentSlot = autosaveSlot; }
             else { goto NOSWAP; }
             currentData = GetSlot(ref currentSlot);
