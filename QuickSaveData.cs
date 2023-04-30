@@ -158,7 +158,7 @@ namespace SaveStates
             {
                 PT2.coming_from_opening_menu = true;
                 PT2.sound_g.AdjustMusicVolume(null, 0f, 0.5f, false, true);
-                PT2.director.current_opening_menu.GameStart(); // Is this ok?
+                PT2.director.current_opening_menu.GameStart(); // Is this ok? //Calls _NS_ProcessSaveDataString lmao
                 PT2.director.current_opening_menu = null;
             }
 
