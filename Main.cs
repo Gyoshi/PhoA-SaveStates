@@ -264,7 +264,7 @@ namespace SaveStates
 
         public static void Postfix(string room_name)
         {
-            if (room_name == "cutscene_intro")
+            if (!Main.loadRequested && room_name == "cutscene_intro")
             {
                 PT2.screen_covers.HazeScreen("9999ff", 0.6f, 0f, float.PositiveInfinity);
 
