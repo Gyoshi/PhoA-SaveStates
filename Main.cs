@@ -261,6 +261,17 @@ namespace SaveStates
             )
                 Main.Autosave();
         }
+
+        public static void Postfix(string room_name)
+        {
+            if (room_name == "cutscene_intro")
+            {
+                PT2.screen_covers.HazeScreen("9999ff", 0.6f, 0f, float.PositiveInfinity);
+
+                PT2.sound_g.PlayUncommonSfx("p1_warning_beep", PT2.gale_interacter.transform.position, 1, 0.95f, 0.5f);
+                PT2.display_messages.DisplayMessage("WARNING: SaveStates is active!", DisplayMessagesLogic.MSG_TYPE.GALE_MINUS_STATUS);
+            }
+        }
     }
 
     [HarmonyPatch(typeof(SaveFile), "GoToGameOverScreen")]
