@@ -1,14 +1,14 @@
-﻿using System;
+﻿using TinyJSON;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using UnityEngine;
-using static UnityModManagerNet.UnityModManager;
+using System.Linq;
+using HarmonyLib;
 
 namespace SaveStates
 {
-    [Serializable]
     public class QuickSaveData
     {
         // Data --
@@ -23,20 +23,15 @@ namespace SaveStates
         public int camera = -1;
         public bool mapMode = false;
 
-        [NonSerialized]
         public GaleStats galeStats = new GaleStats();
-        public float _lift_power = 4f;
-        public int _hp;
-        public int _max_hp;
-        public float _stamina;
-        public float _max_stamina;
-        public float _stamina_buff;
-        public float _attack_buff;
 
         public float staminaStun = 0f;
         public bool grounded = false;
+
+        public BoxData[] liftables = { };
         // End Data --
 
+        private Dictionary<string, Variant>.KeyCollection storedData;
         private bool _loadAvailable = false;
 
         public string room { get { return saveFileString.Split(',')[0]; } }
@@ -54,8 +49,7 @@ namespace SaveStates
             }
             string filename = getSaveFilename(dataPath);
 
-            this.UpdateFields();
-            string jsonString = JsonUtility.ToJson(this, true);
+            string jsonString = JSON.Dump(this, EncodeOptions.PrettyPrint);
             File.WriteAllText(filename, jsonString);
         }
 
@@ -66,14 +60,27 @@ namespace SaveStates
             try
             {
                 string fileContents = File.ReadAllText(filename);
-                data = JsonUtility.FromJson<QuickSaveData>(fileContents);
+                var dict = JSON.Load(fileContents) as ProxyObject;
+                data = dict.Make<QuickSaveData>();
+
+                // Backwards compatibility
+                data.storedData = dict.Keys;
+                if (dict.Keys.Contains("_hp"))
+                {
+                    data.galeStats.lift_power = dict["_lift_power"];
+                    data.galeStats.hp = dict["_hp"];
+                    data.galeStats.max_hp = dict["_max_hp"];
+                    data.galeStats.stamina = dict["_stamina"];
+                    data.galeStats.max_stamina = dict["_max_stamina"];
+                    data.galeStats.stamina_buff = dict["_stamina_buff"];
+                    data.galeStats.attack_buff = dict["_attack_buff"];
+                }
             }
             catch (Exception e)
             {
-                Main.logger.Log("Failed to read savedata at slot " + Main.currentSlot + ". Remove the potentially corrupted savedata file from the mod folder if you wish to continue on a blank slate.");
+                Main.logger.Log("Failed to read savedata at " + filename + ". Remove the potentially corrupted savedata file from the mod folder if you wish to continue on a blank slate.");
                 throw e;
             }
-            data.UpdateStats();
             data._loadAvailable = true;
             return data;
         }
@@ -88,26 +95,6 @@ namespace SaveStates
             filename = char.ToUpper(filename[0]) + filename.Substring(1);
             filename = Main.currentSlot.ToString("00") + "_" + filename + ".json";
             return Path.Combine(dataPath, filename);
-        }
-        private void UpdateStats()
-        {
-            this.galeStats.lift_power = _lift_power;
-            this.galeStats.hp = _hp;
-            this.galeStats.max_hp = _max_hp;
-            this.galeStats.stamina = _stamina;
-            this.galeStats.max_stamina = _max_stamina;
-            this.galeStats.stamina_buff = _stamina_buff;
-            this.galeStats.attack_buff = _attack_buff;
-        }
-        private void UpdateFields()
-        {
-            this._lift_power = galeStats.lift_power;
-            this._hp = galeStats.hp;
-            this._max_hp = galeStats.max_hp;
-            this._stamina = galeStats.stamina;
-            this._max_stamina = galeStats.max_stamina;
-            this._stamina_buff = galeStats.stamina_buff;
-            this._attack_buff = galeStats.attack_buff;
         }
         public void QuickSave() 
         {
@@ -140,6 +127,10 @@ namespace SaveStates
                 this.grounded = galeLogicOne._mover2.collision_info.below;
             }
 
+            // Save Liftables
+            BoxLogic[] liftableObjects = UnityEngine.Object.FindObjectsOfType<BoxLogic>();
+            this.liftables = Array.ConvertAll<BoxLogic, BoxData>(liftableObjects, item => new BoxData(item));
+
             this._loadAvailable = true;
         }
         public void QuickLoad()
@@ -148,6 +139,13 @@ namespace SaveStates
             PT2.item_gen.RemoveAllDisplayNumbersAndSymbols();
             PT2.sound_g.ForceStopOcarina();
             PT2.director.CloseAllDialoguers();
+
+            foreach (var cam in UnityEngine.Object.FindObjectsOfType<SA_ControlCameraLogic>())
+                AccessTools.Field(typeof(SA_ControlCameraLogic), "_sa_status").SetValue(cam, ScriptActionStatus.FINISHED);
+            foreach (var mover in UnityEngine.Object.FindObjectsOfType<SA_MoveNpcLogic>())
+                AccessTools.Field(typeof(SA_MoveNpcLogic), "_sa_status").SetValue(mover, ScriptActionStatus.FINISHED);
+            PT2.director.AlertNonBlockingActionFinished();
+            
             PT2.gale_interacter.NoInteractionsCurrently();
             if (PT2.level_load_in_progress)
             {
@@ -162,7 +160,7 @@ namespace SaveStates
             {
                 PT2.coming_from_opening_menu = true;
                 PT2.sound_g.AdjustMusicVolume(null, 0f, 0.5f, false, true);
-                PT2.director.current_opening_menu.GameStart(); // Is this ok?
+                PT2.director.current_opening_menu.GameStart(); // Is this ok? //Calls _NS_ProcessSaveDataString lmao
                 PT2.director.current_opening_menu = null;
             }
 
@@ -174,21 +172,16 @@ namespace SaveStates
             menuGaleSprite.gameObject.SetActive(false);
 
             // Load SaveFile data
-            PT2.save_file._NS_ProcessSaveDataString(this.saveFileString); // also calls LoadLevel :/
             LoadObjectCodes(this.objectCodes, "_object_codes");
             LoadObjectCodes(this.persistentObjectCodes, "_persistent_object_codes");
             LoadObjectCodes(this.extremelyPersistentObjectCodes, "_xtreme_object_codes");
+            PT2.save_file._NS_ProcessSaveDataString(this.saveFileString); // also calls LoadLevel :/
 
             // Load room
-            PT2.LoadLevel(this.room, this.doorId, Vector3.zero, false, 0f, false, true);
             if (this.mapMode)
-            {
                 PT2.gale_script.SetGaleModeOnLevelLoad(GALE_MODE.MAP_MODE);
-            }
             else
-            {
                 PT2.gale_script.SetGaleModeOnLevelLoad(GALE_MODE.DEFAULT);
-            }
             PT2.gale_script.SendGaleCommand(GALE_CMD.SET_GALE_MODE);
             PT2.gale_script.SendGaleCommand(GALE_CMD.RESET); //idk what this does but it removes at least 1 weird bug so
 
@@ -215,6 +208,19 @@ namespace SaveStates
                 galeLogicOne.stamina_stun = this.staminaStun;
                 galeLogicOne._mover2.collision_info.below = this.grounded;
             }
+
+            // Load Liftables
+            if (storedData.Contains("liftables"))
+            {
+                foreach (var box in UnityEngine.Object.FindObjectsOfType<BoxLogic>())
+                    box.gameObject.SetActive(false);
+                PT2.level_builder.liftable_prefab.RecycleAll<BoxLogic>();
+                foreach (BoxData boxData in liftables)
+                    boxData.Spawn();
+            }
+
+            // Post-Load clearing
+            LevelBuildLogic.time_level_loaded = 0f;
         }
 
         private static void SaveObjectCodes(ref string[] objectCodesArray, string fieldName)
