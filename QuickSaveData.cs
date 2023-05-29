@@ -31,6 +31,7 @@ namespace SaveStates
         public BoxData[] liftables = { };
         // End Data --
 
+        private Dictionary<string, Variant>.KeyCollection storedData;
         private bool _loadAvailable = false;
 
         public string room { get { return saveFileString.Split(',')[0]; } }
@@ -63,6 +64,7 @@ namespace SaveStates
                 data = dict.Make<QuickSaveData>();
 
                 // Backwards compatibility
+                data.storedData = dict.Keys;
                 if (dict.Keys.Contains("_hp"))
                 {
                     data.galeStats.lift_power = dict["_lift_power"];
@@ -208,14 +210,17 @@ namespace SaveStates
             }
 
             // Load Liftables
-            foreach (var box in UnityEngine.Object.FindObjectsOfType<BoxLogic>())
-                box.gameObject.SetActive(false);
-            PT2.level_builder.liftable_prefab.RecycleAll<BoxLogic>();
-            foreach (BoxData boxData in liftables)
+            if (storedData.Contains("liftables"))
             {
-                var gameObject = boxData.Spawn();
-                if (boxData.what == BoxLogic.WHAT.P1_GALE_BOMB)
-                    gameObject.GetComponent<Rigidbody2D>().isKinematic = false;
+                foreach (var box in UnityEngine.Object.FindObjectsOfType<BoxLogic>())
+                    box.gameObject.SetActive(false);
+                PT2.level_builder.liftable_prefab.RecycleAll<BoxLogic>();
+                foreach (BoxData boxData in liftables)
+                {
+                    var gameObject = boxData.Spawn();
+                    if (boxData.what == BoxLogic.WHAT.P1_GALE_BOMB)
+                        gameObject.GetComponent<Rigidbody2D>().isKinematic = false; // TODO: Move to ObjectData.cs
+                }
             }
 
             // Post-Load clearing
