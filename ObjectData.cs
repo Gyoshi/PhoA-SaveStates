@@ -63,6 +63,7 @@ namespace SaveStates
                 boxLogic.special_logic.MakeIntoRemoteBomb();
 
             AccessTools.Field(typeof(SpecialLiftableLogic), "_wait_frames").SetValue(boxLogic.special_logic, this._wait_frames);
+            boxLogic.GetComponent<Rigidbody2D>().isKinematic = false;
 
             Animator _anim = (Animator)AccessTools.Field(typeof(SpecialLiftableLogic), "_anim").GetValue(boxLogic.special_logic);
             LoopingAudioLogic _my_looping_audio = (LoopingAudioLogic)AccessTools.Field(typeof(SpecialLiftableLogic), "_my_looping_audio").GetValue(boxLogic.special_logic);

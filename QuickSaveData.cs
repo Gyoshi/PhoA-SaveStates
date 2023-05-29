@@ -216,11 +216,7 @@ namespace SaveStates
                     box.gameObject.SetActive(false);
                 PT2.level_builder.liftable_prefab.RecycleAll<BoxLogic>();
                 foreach (BoxData boxData in liftables)
-                {
-                    var gameObject = boxData.Spawn();
-                    if (boxData.what == BoxLogic.WHAT.P1_GALE_BOMB)
-                        gameObject.GetComponent<Rigidbody2D>().isKinematic = false; // TODO: Move to ObjectData.cs
-                }
+                    boxData.Spawn();
             }
 
             // Post-Load clearing
