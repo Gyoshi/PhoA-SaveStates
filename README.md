@@ -104,7 +104,7 @@ source code: https://github.com/Gyoshi/PhoA-SaveStates
 オープニングメニューからクイックロードすることもできます。ただし、デフォルトでい一位のセーブファイルに保存されるので、オープニングメニューからクイックロードした後に通常の保存を行うと、最初に保存したファイルにあったものが上書きされることに注意を。
 
 ## インストール
-[Unity Mod Manager](https://www.nexusmods.com/site/mods/21/)が必要です。その後 `PhoA-SaveStates.zip`というファイルを[ここからダウンロードして](https://github.com/Gyoshi/PhoA-SaveStates/releases/latest)、Unity Mod ManagerのMODインストール手順に従うだけです。
+[Unity Mod Manager](https://www.nexusmods.com/site/mods/21/)が必要です。その後 `PhoA-SaveStates.zip`というファイルを[ここからダウンロードして](https://github.com/Gyoshi/PhoA-SaveStates/releases/latest)、Unity Mod ManagerのMODインストール手順を従うだけです。
 
 ## 既知の問題
 - ゲイルやカメラを動かすカットシーンが正しく上書きされません。
